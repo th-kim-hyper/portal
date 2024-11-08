@@ -1,0 +1,28 @@
+  <!DOCTYPE mapper
+          PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+          "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="portal.mapper.primary.PortalUserMapper">
+      <select id="selectUserById" parameterType="string" resultType="string">
+          SELECT user_name
+          FROM portal_user
+          WHERE user_Id = #{userId}
+      </select>
+      
+      <update id="updateUser">
+      	UPDATE portal.portal_user
+      	SET user_name = #{userName}
+      	WHERE user_id = #{userId}
+      </update>
+
+      <update id="updateT">
+      	UPDATE portal.tt
+      	SET cnt = (SELECT COUNT(*) + 1 FROM portal.tt WHERE tid = ${tid})
+      	WHERE tid = ${tid}
+      </update>
+      
+      <insert id="insertT">
+      	INSERT INOT portal.tt(tid, nm)
+      	VALUES (${tid}, #{nm})
+      </insert>             
+      
+  </mapper>

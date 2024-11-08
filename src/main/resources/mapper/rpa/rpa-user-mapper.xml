@@ -1,0 +1,10 @@
+  <!DOCTYPE mapper
+          PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+          "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="portal.mapper.rpa.RpaUserMapper">
+      <select id="selectUserById" parameterType="string" resultType="string">
+          SELECT user_nm
+          FROM rpa.tb_fr_user_info
+          WHERE user_Id = #{userId}
+      </select>
+  </mapper>	

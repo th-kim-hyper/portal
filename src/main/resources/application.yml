@@ -1,0 +1,102 @@
+###############################################################################
+## Application properties
+###############################################################################
+spring.profiles:
+  group:
+    local: local-profile,common-profile
+    dev: dev-profile,common-profile
+    prod: prod-profile,common-profile
+  default: prod
+  active: local
+
+portal:
+  datasource:
+    rpa: true
+  name: "@spirng.profiles.active@"
+  version: "@application.version@"
+  storage-mode: local
+  ext.enable: false
+
+---
+###############################################################################
+## common-profile
+###############################################################################
+spring.config.activate.on-profile: common-profile
+
+# thymeleaf view
+spring.thymeleaf:
+  cache: false
+  prefix: classpath:/templates/
+  suffix: .html
+  view-names: thymeleaf/*
+
+# jsp view
+spring.mvc.view:
+  prefix: /WEB-INF/views/
+  suffix: .jsp
+
+# datasource
+spring.datasource.hikari:
+  primary:
+    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+    jdbc-url: jdbc:log4jdbc:mariadb://192.168.20.52:4406/portal?serverTimezone=UTC&characterEncoding=utf8
+    username: root
+    password: dbadmin!23
+    maximum-pool-size: 50
+    max-lifetime: 30000
+    connection-timeout: 0
+    transaction-isolation: TRANSACTION_READ_UNCOMMITTED
+  rpa:
+    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+    jdbc-url: jdbc:log4jdbc:mariadb://192.168.20.51:4406/rpa?serverTimezone=UTC&characterEncoding=utf8
+    username: root
+    password: rpago!23
+    maximum-pool-size: 50
+    max-lifetime: 30000
+    connection-timeout: 0
+    transaction-isolation: TRANSACTION_READ_UNCOMMITTED    
+ 
+# mybatis
+mybatis:
+  primary:
+    mapper-config-location: classpath:mapper/primary-mybatis-config.xml
+    mapper-locations: classpath:mapper/primary/*.xml
+    mapper-scan-base-packages: portal.mapper.primary
+  rpa:
+    mapper-config-location: classpath:mapper/rpa-mybatis-config.xml
+    mapper-locations: classpath:mapper/rpa/*.xml
+    mapper-scan-base-packages: portal.mapper.rpa
+
+spring.output.ansi.enabled: always
+
+logging:
+  level:
+    '[portal]': debug
+    jdbc:
+      sqlonly: off
+      sqltiming: debug
+      audit: off
+      resultset: off
+      resultsettable: off
+      connection: off
+
+---
+###############################################################################
+## dev-profile
+###############################################################################
+spring.config.activate.on-profile: dev-profile
+
+spring.output.ansi.enabled: always
+
+logging:
+  level:
+    '[portal]': debug
+    jdbc:
+      sqlonly: off
+      sqltiming: debug
+      audit: off
+      resultset: off
+      resultsettable: off
+      connection: off
+
+      
