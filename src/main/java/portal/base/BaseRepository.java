@@ -1,10 +1,13 @@
 package portal.base;
 
+import java.util.List;
+
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import portal.base.dto.PortalUserDTO;
 import portal.mapper.primary.PortalUserMapper;
 import portal.mapper.rpa.RpaUserMapper;
 
@@ -16,7 +19,11 @@ public class BaseRepository {
 	@Nullable
 	private final RpaUserMapper rpaUserMapper;
 	
-	public String getUser(String userId) {
+	public List<PortalUserDTO> findAllUser() {
+		return portalUserMapper.findAllUser();
+	}
+	
+	public PortalUserDTO findByUserId(String userId) {
 		return portalUserMapper.selectUserById(userId);
 	}
 	

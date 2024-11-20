@@ -1,36 +1,46 @@
 package portal.config;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.Properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
-@ConfigurationProperties(prefix="portal")
-@Getter
-@Setter
-@Configuration
+@Slf4j
+@Configuration("applicationConfig")
 public class ApplicationConfig {
 
-	private String name;
-	private String version;
-	private String storageMode;
-	private LinkedHashMap<String, Object> datasource;
-	private Ext ext;
-	
-	@Bean
+	@Bean("portalProperties")
     @ConfigurationProperties(prefix="portal")
-    public Map<String, Object> propertyMap() {
-		return new LinkedHashMap<String, Object>();
+    public PortalProperties portalProperties() {
+		log.info("#### portalProperties Bean Create");
+		return new PortalProperties();
     }
 	
-	@Data
-	public class Ext {
+//	@Bean("jasyptDbProp")
+//    @ConfigurationProperties(prefix="jasypt.db-prop")
+//    public SimpleStringPBEConfig simpleStringPBEConfig() {
+//		log.info("#### jasyptDbProp Bean Create");
+//		return new SimpleStringPBEConfig();
+//    }
+	
+	@Getter
+	@Setter
+	public static class PortalProperties {
+		private String name;
+		private String version;
+		private String storageMode;
+		private Properties datasource;
+		private Ext ext;
+	}
+	
+	@Getter
+	@Setter
+	public static class Ext {
 		private Boolean enable;
 	}
 	

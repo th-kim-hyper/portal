@@ -12,10 +12,35 @@ spring.profiles:
 portal:
   datasource:
     rpa: true
-  name: "@spirng.profiles.active@"
-  version: "@application.version@"
+  name: "포탈"
+  version: "0.1"
   storage-mode: local
   ext.enable: false
+
+jasypt:
+  db-prop:
+    password: "rpago!23"
+    algorithm: "PBEWITHHMACSHA512ANDAES_256"
+    key-obtention-iterations: 1000
+    poolSize: 1
+    provider-name: "SunJCE"
+#    salt-generator: "org.jasypt.salt.RandomSaltGenerator"
+    string-output-type: "base64"
+
+spring:
+  activemq:
+    broker-url: tcp://localhost:61616
+    user: admin
+    password: admin
+
+activemq:
+  queue:
+    name: sample-queue
+
+#spring.security:
+#  user:
+#    name: root
+#    password: 1234
 
 ---
 ###############################################################################
@@ -82,6 +107,41 @@ logging:
 
 ---
 ###############################################################################
+## local-profile
+###############################################################################
+spring.config.activate.on-profile: local-profile
+
+spring.output.ansi.enabled: always
+spring:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+spring.datasource.hikari:
+  primary:
+    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+    jdbc-url: jdbc:log4jdbc:mariadb://localhost:4406/portal?serverTimezone=UTC&characterEncoding=utf8
+    username: root
+    password: rpago!23
+    maximum-pool-size: 50
+    max-lifetime: 30000
+    connection-timeout: 0
+    transaction-isolation: TRANSACTION_READ_UNCOMMITTED    
+
+logging:
+  level:
+    '[portal]': debug
+    jdbc:
+      sqlonly: off
+      sqltiming: debug
+      audit: off
+      resultset: off
+      resultsettable: off
+      connection: off
+
+---
+###############################################################################
 ## dev-profile
 ###############################################################################
 spring.config.activate.on-profile: dev-profile
@@ -99,4 +159,3 @@ logging:
       resultsettable: off
       connection: off
 
-      
