@@ -1,70 +1,81 @@
 package portal.config;
 
 import jakarta.servlet.DispatcherType;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import portal.base.Role;
+import java.util.List;
 
 @Slf4j
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final ApplicationConfig applicationConfig;
+    private final UserDetailsService userDetailsService;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        log.info("#### passwordEncoder");
+        return NoOpPasswordEncoder.getInstance();
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         log.info("#### SecurityFilterChain");
+        List<String> whitelist = applicationConfig.portalProperties().getWhitelist();
         http
             .csrf(AbstractHttpConfigurer::disable)
+            .cors(AbstractHttpConfigurer::disable)
             .headers(headersConfig -> headersConfig
                 .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)
             )
             .authorizeHttpRequests(authorizeRequests -> authorizeRequests
-                .requestMatchers(PathRequest.toH2Console()).permitAll()
-                .requestMatchers("/", "/dev/**").permitAll()
-                .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**", "/favicon.*", "/*/icon-*").permitAll()
+                .requestMatchers(whitelist.toArray(new String[0])).permitAll()
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                 .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
                 .requestMatchers("/admin/**").hasRole(Role.ADMIN.name())
                 .anyRequest().authenticated()
             )
-            .formLogin((formLogin) -> formLogin
-                .loginPage("/login/form").permitAll()
-                .usernameParameter("username")
-                .passwordParameter("password")
-                .loginProcessingUrl("/login/proc").permitAll()
-                .defaultSuccessUrl("/", true)
+            .formLogin((formLogin) ->
+                formLogin.loginPage("/login").permitAll()
             )
-            
-//                .logout((logoutConfig) ->
-//                        logoutConfig.logoutSuccessUrl("/")
-//                )
-//                .userDetailsService(portalUserDetailsService)
+            .logout((logoutConfig) ->
+                logoutConfig
+                    .deleteCookies()
+                    .invalidateHttpSession(true)
+                    .logoutSuccessUrl("/")
+            )
+            .authenticationManager(authentication -> {
+                CustomAuthenticationProvider authProvider = new CustomAuthenticationProvider(userDetailsService, passwordEncoder());
+                return authProvider.authenticate(authentication);
+            })
         ;
-
+//
         return http.build();
     }
 
-//    @Bean
-//    public WebSecurityCustomizer webSecurityCustomizer() {
-//        return (web) -> web.ignoring().requestMatchers(PathRequest.toStaticResources().atCommonLocations());
+//    public class UserDetailsServiceConfig {
+//        @Bean
+//        public UserDetailsService userDetailsService() {
+//            return username -> User.builder()
+//                .username("username")
+//                .password("username")
+//                .roles(Role.USER.name())
+//                .build();
+//        }
 //    }
 
 }

@@ -1,20 +1,15 @@
 package portal.base;
 
 import java.util.List;
-import java.util.Map;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import portal.base.dto.MessageDto;
 import portal.base.dto.PortalUserDTO;
 import portal.config.ApplicationConfig.PortalProperties;
 
@@ -24,23 +19,26 @@ import portal.config.ApplicationConfig.PortalProperties;
 public class BaseController {
 	
 	final private BaseService baseService;
-	
+
 	@RequestMapping("/")
 	public String index(Model model, HttpServletRequest request) {
 		log.info("#### /index page!");
-		PortalProperties props = baseService.getPortalProperties();
-		List<PortalUserDTO> userList = baseService.findAllUser();
-		model.addAttribute("props", props);
-		model.addAttribute("userList", userList);
+
+//		List<String> whitelist = baseService.getWhitelist();
+//		whitelist.forEach(log::info);
+//
+//		PortalProperties props = baseService.getPortalProperties();
+//		List<PortalUserDTO> userList = baseService.findAllUser();
+//		model.addAttribute("props", props);
+//		model.addAttribute("userList", userList);
 
 //		String userId = request.getParameter("userId");
 //		PortalUserDTO user = baseService.getPortalUser(userId);
 //		model.addAttribute("user", user);
-		
 		return "thymeleaf/index";
 	}
 
-	@RequestMapping("/login/form")
+	@RequestMapping({"/login", "/login/form"})
 	public String loginForm() {
 		return "thymeleaf/login";
 	}
@@ -72,11 +70,7 @@ public class BaseController {
 		return "jsp/test";
 	}
 
-	@RequestMapping("/user")
-	@ResponseBody
-	public String userIndex() {
-		return "User page";
-	}
+
 
 	@RequestMapping("/admin")
 	@ResponseBody

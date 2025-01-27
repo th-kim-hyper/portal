@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:fragment="default_layout">
+<head>
+  <base href="./frontend/">
+  <title layout:title-pattern="$CONTENT_TITLE">Default Layout</title>
+  <th:block th:replace="~{thymeleaf/fragments/default_head :: default_head}"></th:block>
+</head>
+<body>
+<th:block th:replace="~{thymeleaf/fragments/sidebar :: sidebar}"></th:block>
+<div class="wrapper d-flex flex-column min-vh-100">
+  <th:block th:replace="~{thymeleaf/fragments/header :: header}"></th:block>
+  <th:block layout:fragment="content"></th:block>
+  <th:block th:replace="~{thymeleaf/fragments/footer :: footer}"></th:block>
+</div>
+<!-- CoreUI and necessary plugins-->
+<script src="vendors/@coreui/coreui/js/coreui.bundle.min.js"></script>
+<script src="vendors/simplebar/js/simplebar.min.js"></script>
+<script>
+    const header = document.querySelector('header.header');
+
+    document.addEventListener('scroll', () => {
+        if (header) {
+            header.classList.toggle('shadow-sm', document.documentElement.scrollTop > 0);
+        }
+    });
+</script>
+<!-- Plugins and scripts required by this view-->
+<script src="vendors/chart.js/js/chart.umd.js"></script>
+<script src="vendors/@coreui/chartjs/js/coreui-chartjs.js"></script>
+<script src="vendors/@coreui/utils/js/index.js"></script>
+<script src="js/main.js"></script>
+<script>
+</script>
+
+</body>
+
+</html>

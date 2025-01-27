@@ -1,10 +1,50 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
+  <meta charset="UTF-8">
+  <title>Insert title here</title>
 </head>
 <body>
 하이퍼정보 index.html 템플릿
+<table>
+  <thead>
+  <tr>
+    <th>user_id</th>
+    <th>user_name</th>
+    <th>email</th>
+    <!-- 			<th>org_id</th> -->
+    <!-- 			<th>dept_id</th> -->
+    <!-- 			<th>grp_id</th> -->
+    <!-- 			<th>recent_login_dt</th> -->
+    <!-- 			<th>recent_login_ip</th> -->
+    <!-- 			<th>password_expire_date</th> -->
+    <!-- 			<th>account_expire_date</th> -->
+    <!-- 			<th>is_del</th> -->
+    <th>create_dt</th>
+    <th>create_id</th>
+    <th>update_dt</th>
+    <th>update_id</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="user : ${userList}" >
+    <td th:text="${user.userId}">user_id</td>
+    <td th:text="${user.userName}">user_name</td>
+    <td th:text="${user.email}">email</td>
+    <!-- 			<td th:text="${user.}">org_id</td> -->
+    <!-- 			<td th:text="${user.}">dept_id</td> -->
+    <!-- 			<td th:text="${user.}">grp_id</td> -->
+    <!-- 			<td th:text="${user.}">recent_login_dt</td> -->
+    <!-- 			<td th:text="${user.}">recent_login_ip</td> -->
+    <!-- 			<td th:text="${user.}">password_expire_date</td> -->
+    <!-- 			<td th:text="${user.}">account_expire_date</td> -->
+    <!-- 			<td th:text="${user.}">is_del</td> -->
+    <td th:text="${#dates.format(user.createDt, 'yyyy-MM-dd HH:mm:ss')} + '.' + ${#dates.millisecond(user.createDt)}">create_dt</td>
+    <td th:text="${user.createId}">create_id</td>
+    <td th:text="${#dates.format(user.updateDt, 'yyyy-MM-dd HH:mm:ss')} + '.' + ${#dates.millisecond(user.updateDt)}">update_dt</td>
+    <td th:text="${user.updateId}">update_id</td>
+  </tr>
+  </tbody>
+</table>
 </body>
 </html>

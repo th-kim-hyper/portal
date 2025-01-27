@@ -16,9 +16,6 @@ import portal.config.ApplicationConfig.PortalProperties;
 @Service
 public class BaseService {
 	
-	@Value("${portal.version}")
-	private String version;
-	
 	private final ApplicationConfig applicationConfig;
 	private final BaseRepository baseRepository;
 	
@@ -34,27 +31,8 @@ public class BaseService {
 		return baseRepository.findByUserId(userId);
 	}
 
+	public List<String> getWhitelist() {
+		return applicationConfig.portalProperties().getWhitelist();
+	}
 
-//	@Value("${activemq.queue.name}")
-//    private String queueName;
-//
-//    // jmsTemplate 을 통해 메세지 송신 가능
-//    private final JmsTemplate jmsTemplate;
-//
-//    /**
-//     * Queue 로 메세지를 발행
-//     * messageDto -> Producer 가 Queue 발행한 메세지 Class
-//     */
-//    public void sendMessage(MessageDto messageDto) {
-//        log.info("message sent : {}", messageDto.toString());
-//        // queueName(Sample-queue) 에 메세지 전송
-//        jmsTemplate.convertAndSend(queueName,messageDto);
-//    }
-//
-//    @JmsListener(destination = "${activemq.queue.name}")
-//    public void receiveMessage(MessageDto messageDto) {
-//        log.info("Received message : {}",messageDto.toString());
-//    }
-
-	
 }

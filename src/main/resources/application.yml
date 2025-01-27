@@ -9,7 +9,21 @@ spring.profiles:
   default: prod
   active: local
 
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
 portal:
+  whitelist:
+    - "/"
+    - "/index.html"
+    - "/dev/**"
+    - "/frontend/**"
+    - "/www/**"
+    - "/swagger-ui/**"
+    - "/v3/api-docs"
   datasource:
     rpa: true
   name: "포탈"
@@ -27,15 +41,15 @@ jasypt:
 #    salt-generator: "org.jasypt.salt.RandomSaltGenerator"
     string-output-type: "base64"
 
-spring:
-  activemq:
-    broker-url: tcp://localhost:61616
-    user: admin
-    password: admin
-
-activemq:
-  queue:
-    name: sample-queue
+#spring:
+#  activemq:
+#    broker-url: tcp://localhost:61616
+#    user: admin
+#    password: admin
+#
+#activemq:
+#  queue:
+#    name: sample-queue
 
 #spring.security:
 #  user:
@@ -63,24 +77,25 @@ spring.mvc.view:
 # datasource
 spring.datasource.hikari:
   primary:
-    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
-    jdbc-url: jdbc:log4jdbc:mariadb://192.168.20.52:4406/portal?serverTimezone=UTC&characterEncoding=utf8
-    username: root
+#    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+    driver-class-name: org.mariadb.jdbc.Driver
+    jdbc-url: jdbc:mariadb://192.168.20.52:4406/portal?serverTimezone=UTC&characterEncoding=utf8
+    username: admin
     password: dbadmin!23
     maximum-pool-size: 50
     max-lifetime: 30000
     connection-timeout: 0
     transaction-isolation: TRANSACTION_READ_UNCOMMITTED
   rpa:
-    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
-    jdbc-url: jdbc:log4jdbc:mariadb://192.168.20.51:4406/rpa?serverTimezone=UTC&characterEncoding=utf8
+    driver-class-name: org.mariadb.jdbc.Driver
+    jdbc-url: jdbc:mariadb://192.168.20.51:4406/rpa?serverTimezone=UTC&characterEncoding=utf8
     username: root
     password: rpago!23
     maximum-pool-size: 50
     max-lifetime: 30000
     connection-timeout: 0
-    transaction-isolation: TRANSACTION_READ_UNCOMMITTED    
- 
+    transaction-isolation: TRANSACTION_READ_UNCOMMITTED
+
 # mybatis
 mybatis:
   primary:
@@ -110,24 +125,30 @@ logging:
 ## local-profile
 ###############################################################################
 spring.config.activate.on-profile: local-profile
-
 spring.output.ansi.enabled: always
 spring:
-  h2:
-    console:
+  devtools:
+#    restart:
+#      enabled: true
+    livereload:
       enabled: true
-      path: /h2-console
 
-spring.datasource.hikari:
-  primary:
-    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
-    jdbc-url: jdbc:log4jdbc:mariadb://localhost:4406/portal?serverTimezone=UTC&characterEncoding=utf8
-    username: root
-    password: rpago!23
-    maximum-pool-size: 50
-    max-lifetime: 30000
-    connection-timeout: 0
-    transaction-isolation: TRANSACTION_READ_UNCOMMITTED    
+#spring:
+#  h2:
+#    console:
+#      enabled: true
+#      path: /h2-console
+
+#spring.datasource.hikari:
+#  primary:
+#    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+#    jdbc-url: jdbc:log4jdbc:mariadb://localhost:4406/portal?serverTimezone=UTC&characterEncoding=utf8
+#    username: root
+#    password: rpago!23
+#    maximum-pool-size: 50
+#    max-lifetime: 30000
+#    connection-timeout: 0
+#    transaction-isolation: TRANSACTION_READ_UNCOMMITTED
 
 logging:
   level:

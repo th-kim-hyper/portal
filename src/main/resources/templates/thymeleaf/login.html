@@ -1,22 +1,64 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http//www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{thymeleaf/layout/simple_layout}"
+      layout:fragment="content">
 <head>
-    <title>Please Log In</title>
+    <title>로그인</title>
 </head>
 <body>
-<h1>Please Log In</h1>
-<div th:if="${param.error}">
-    Invalid username and password.</div>
-<div th:if="${param.logout}">
-    You have been logged out.</div>
-<form th:action="@{/login/proc}" method="post">
-    <div>
-        <input type="text" name="username" placeholder="Username"/>
+<div class="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <form method="post" enctype="application/x-www-form-urlencoded">
+                <div class="card-group d-block d-md-flex row">
+                    <div class="card col-md-7 p-4 mb-0">
+                        <div class="card-body">
+                            <h1>Login</h1>
+                            <p class="text-body-secondary">Mailplug 계정으로 로그인</p>
+                            <div class="input-group mb-3"><span class="input-group-text">
+                      <svg class="icon">
+                        <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-user"></use>
+                      </svg></span>
+                                <input name="username" class="form-control" type="text" placeholder="Username">
+                            </div>
+                            <div class="input-group mb-4"><span class="input-group-text">
+                      <svg class="icon">
+                        <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-lock-locked"></use>
+                      </svg></span>
+                                <input name="password" class="form-control" type="password" placeholder="Password">
+                            </div>
+                            <div class="row">
+                                <div class="col-6">
+                                    <button class="btn btn-primary px-4" type="submit">Login</button>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <a href="#" class="btn btn-link px-0 disabled" type="button">비밀번호 초기화</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card col-md-5 text-white bg-primary py-5">
+                        <div class="card-body text-center">
+                            <div>
+                                <h2>회원가입</h2>
+                                <p>별도의 가입없이 Mailplug 계정으로 로그인 가능합니다.</p>
+                                <a href="https://login.mailplug.com/" target="_blank" class="btn btn-lg btn-outline-warning mt-3" type="button">Mailplug
+                                    <svg class="icon">
+                                        <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-external-link"></use>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </form>
+            </div>
+        </div>
     </div>
-    <div>
-        <input type="password" name="password" placeholder="Password"/>
-    </div>
-    <input type="submit" value="Log in" />
-</form>
+</div>
+<!-- CoreUI and necessary plugins-->
+<script src="vendors/@coreui/coreui/js/coreui.bundle.min.js"></script>
 </body>
 </html>
