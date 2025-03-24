@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<properties>
-		<java.version>17</java.version>
+		<java.version>21</java.version>
 		<spring.boot.version>3.4.1</spring.boot.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
@@ -20,7 +20,7 @@
 	<packaging>war</packaging>
 	<name>하이퍼포털</name>
 	<description>RPA 포털 서비스</description>
-	<url/>
+	<url>https://dev.hyperinfo.co.kr:8443</url>
 	<licenses>
 		<license/>
 	</licenses>
@@ -44,7 +44,7 @@
 		<dependency>
 			<groupId>org.apache.tomcat.embed</groupId>
 			<artifactId>tomcat-embed-jasper</artifactId>
-			<version>10.1.34</version>
+			<version>10.1.39</version>
 		</dependency>
 		<dependency>
 			<groupId>jakarta.servlet</groupId>
@@ -55,6 +55,16 @@
 			<groupId>jakarta.servlet.jsp.jstl</groupId>
 			<artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
 			<version>3.0.2</version>
+		</dependency>
+		<dependency>
+			<groupId>jakarta.el</groupId>
+			<artifactId>jakarta.el-api</artifactId>
+			<version>6.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.web</groupId>
+			<artifactId>jakarta.servlet.jsp.jstl</artifactId>
+			<version>3.0.1</version>
 		</dependency>
 		<!-- /Template engine -->
 
@@ -134,25 +144,53 @@
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-			<version>2.3.0</version>
+			<version>2.8.5</version>
 		</dependency>
 
+		<dependency>
+		    <groupId>org.jsoup</groupId>
+		    <artifactId>jsoup</artifactId>
+		    <version>1.18.1</version>
+		</dependency>
 	</dependencies>
 
 	<build>
+		<finalName>portal</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-					<excludes>
-						<exclude>
-							<groupId>org.projectlombok</groupId>
-							<artifactId>lombok</artifactId>
-						</exclude>
-					</excludes>
-				</configuration>
+<!--				<configuration>-->
+<!--					<excludes>-->
+<!--						<exclude>-->
+<!--							<groupId>org.projectlombok</groupId>-->
+<!--							<artifactId>lombok</artifactId>-->
+<!--						</exclude>-->
+<!--					</excludes>-->
+<!--				</configuration>-->
 			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>3.4.1</version>
+<!--				<configuration>-->
+<!--					<executable>curl</executable>-->
+<!--					<arguments>-->
+<!--						<argument>-u</argument>-->
+<!--						<argument>tomcat:tomcat!23</argument>-->
+<!--						<argument>-T</argument>-->
+<!--						<argument>"C:\work\portal\target\portal-0.1(alpha).war"</argument>-->
+<!--						<argument>"http://192.168.50.98:8080/manager/text/deploy?path=/portal&amp;update=true"</argument>-->
+<!--					</arguments>-->
+<!--				</configuration>-->
+			</plugin>
+<!--			<plugin>-->
+<!--				<groupId>org.apache.maven.plugins</groupId>-->
+<!--				<artifactId>maven-surefire-plugin</artifactId>-->
+<!--				<configuration>-->
+<!--					<argLine>-javaagent:"${settings.localRepository}/org/mockito/mockito-core/5.14.2/mockito-core-5.14.2.jar"</argLine>-->
+<!--				</configuration>-->
+<!--			</plugin>-->
 		</plugins>
 	</build>
 

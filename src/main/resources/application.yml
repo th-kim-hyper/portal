@@ -7,23 +7,8 @@ spring.profiles:
     dev: dev-profile,common-profile
     prod: prod-profile,common-profile
   default: prod
-  active: local
+  active: prod
 
-springdoc:
-  api-docs:
-    path: /v3/api-docs
-  swagger-ui:
-    path: /swagger-ui.html
-
-portal:
-  whitelist:
-    - "/"
-    - "/index.html"
-    - "/dev/**"
-    - "/frontend/**"
-    - "/www/**"
-    - "/swagger-ui/**"
-    - "/v3/api-docs"
   datasource:
     rpa: true
   name: "포탈"
@@ -41,21 +26,6 @@ jasypt:
 #    salt-generator: "org.jasypt.salt.RandomSaltGenerator"
     string-output-type: "base64"
 
-#spring:
-#  activemq:
-#    broker-url: tcp://localhost:61616
-#    user: admin
-#    password: admin
-#
-#activemq:
-#  queue:
-#    name: sample-queue
-
-#spring.security:
-#  user:
-#    name: root
-#    password: 1234
-
 ---
 ###############################################################################
 ## common-profile
@@ -71,7 +41,7 @@ spring.thymeleaf:
 
 # jsp view
 spring.mvc.view:
-  prefix: /WEB-INF/views/
+  prefix: /WEB-INF/
   suffix: .jsp
 
 # datasource
@@ -120,6 +90,34 @@ logging:
       resultsettable: off
       connection: off
 
+springdoc:
+  packages-to-scan: portal
+  swagger-ui:
+    tryItOutEnabled: true
+    displayOperationId: true
+    displayRequestDuration: true
+    urls-primary-name: "dev API"
+    urls:
+      - name : "dev API"
+        url : "http://192.168.50.98:8080/portal/v3/api-docs"
+      - name : "local API"
+        url : "/v3/api-docs"
+
+
+portal:
+  whitelist:
+    - "/"
+    - "/error"
+    - "/error/**"
+    - "/index.html"
+    - "/favicon.ico"
+    - "/hi-works.png"
+    - "/public/**"
+    - "/frontend/**"
+    - "/swagger-ui.html"
+    - "/swagger-ui/**"
+    - "/v3/api-docs/**"
+
 ---
 ###############################################################################
 ## local-profile
@@ -132,6 +130,12 @@ spring:
 #      enabled: true
     livereload:
       enabled: true
+
+server:
+  servlet:
+    jsp:
+      init-parameters:
+        development: true
 
 #spring:
 #  h2:
@@ -160,6 +164,11 @@ logging:
       resultset: off
       resultsettable: off
       connection: off
+
+springdoc:
+  swagger-ui:
+    urls-primary-name: "local API"
+
 
 ---
 ###############################################################################

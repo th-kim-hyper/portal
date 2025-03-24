@@ -6,19 +6,20 @@
         <meta name="description" content="CoreUI - Open Source Bootstrap Admin Template">
         <meta name="author" content="Łukasz Holeczek">
         <meta name="keyword" content="Bootstrap,Admin,Template,Open,Source,jQuery,CSS,HTML,RWD,Dashboard">
-        <link rel="manifest" href="assets/favicon/manifest.json">
         <meta name="msapplication-TileColor" content="#ffffff">
         <meta name="msapplication-TileImage" content="assets/favicon/ms-icon-144x144.png">
         <meta name="theme-color" content="#ffffff">
+        <link rel="shortcut icon" th:href="@{/favicon.ico}" href="/favicon.ico" type="image/x-icon">
+        <link rel="icon" th:href="@{/favicon.ico}" href="/favicon.ico" type="image/x-icon">
         <!-- Vendors styles-->
-        <link rel="stylesheet" href="vendors/simplebar/css/simplebar.css">
-        <link rel="stylesheet" href="css/vendors/simplebar.css">
+        <link rel="stylesheet" th:href="@{/frontend/vendors/simplebar/css/simplebar.css}" href="vendors/simplebar/css/simplebar.css">
+        <link rel="stylesheet" th:href="@{/frontend/css/vendors/simplebar.css}" href="css/vendors/simplebar.css">
         <!-- Main styles for this application-->
-        <link href="css/style.css" rel="stylesheet">
+        <link th:href="@{/frontend/css/style.css}" href="css/style.css" rel="stylesheet">
         <!-- We use those styles to show code examples, you should remove them in your application.-->
-        <link href="css/examples.css" rel="stylesheet">
-        <script src="js/config.js"></script>
-        <script src="js/color-modes.js"></script>
-        <link href="vendors/@coreui/chartjs/css/coreui-chartjs.css" rel="stylesheet">
+        <link th:href="@{/frontend/css/examples.css}" href="css/examples.css" rel="stylesheet">
+        <script th:src="@{/frontend/js/config.js}" src="js/config.js"></script>
+        <script th:src="@{/frontend/js/color-modes.js}" src="js/color-modes.js"></script>
+        <link th:href="@{/frontend/vendors/@coreui/chartjs/css/coreui-chartjs.css}" href="vendors/@coreui/chartjs/css/coreui-chartjs.css" rel="stylesheet">
     </th:block>
 </html>

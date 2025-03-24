@@ -8,6 +8,6 @@
 <title>Insert title here</title>
 </head>
 <body>
-하이퍼정보 /WEB-INF/views/jsp/test.jsp : <%= new Date() %>
+하이퍼정보 JSP/JSTL 템플릿 /WEB-INF/jsp/test.jsp : ${requestScope.keySet()}
 </body>
 </html>

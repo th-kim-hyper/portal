@@ -11,7 +11,11 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-8">
-                <form method="post" enctype="application/x-www-form-urlencoded">
+              <div th:if="${param.error}">
+                Invalid username and password.</div>
+              <div th:if="${param.logout}">
+                You have been logged out.</div>
+              <form th:action="@{/login}" method="post">
                 <div class="card-group d-block d-md-flex row">
                     <div class="card col-md-7 p-4 mb-0">
                         <div class="card-body">
@@ -19,13 +23,13 @@
                             <p class="text-body-secondary">Mailplug 계정으로 로그인</p>
                             <div class="input-group mb-3"><span class="input-group-text">
                       <svg class="icon">
-                        <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-user"></use>
+                        <use xlink:href="frontend/vendors/@coreui/icons/svg/free.svg#cil-user"></use>
                       </svg></span>
                                 <input name="username" class="form-control" type="text" placeholder="Username">
                             </div>
                             <div class="input-group mb-4"><span class="input-group-text">
                       <svg class="icon">
-                        <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-lock-locked"></use>
+                        <use xlink:href="frontend/vendors/@coreui/icons/svg/free.svg#cil-lock-locked"></use>
                       </svg></span>
                                 <input name="password" class="form-control" type="password" placeholder="Password">
                             </div>
@@ -46,7 +50,7 @@
                                 <p>별도의 가입없이 Mailplug 계정으로 로그인 가능합니다.</p>
                                 <a href="https://login.mailplug.com/" target="_blank" class="btn btn-lg btn-outline-warning mt-3" type="button">Mailplug
                                     <svg class="icon">
-                                        <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-external-link"></use>
+                                        <use xlink:href="frontend/vendors/@coreui/icons/svg/free.svg#cil-external-link"></use>
                                     </svg>
                                 </a>
                             </div>
@@ -59,6 +63,6 @@
     </div>
 </div>
 <!-- CoreUI and necessary plugins-->
-<script src="vendors/@coreui/coreui/js/coreui.bundle.min.js"></script>
+<script th:src="@{/frontend/vendors/@coreui/coreui/js/coreui.bundle.min.js}"></script>
 </body>
 </html>

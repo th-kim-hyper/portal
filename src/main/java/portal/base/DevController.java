@@ -3,10 +3,8 @@ package portal.base;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import portal.config.ApplicationConfig.PortalProperties;
 
 @RequestMapping("/dev")
 @Slf4j
@@ -35,7 +33,7 @@ public class DevController {
 	
 	@RequestMapping("/test_jsp")
 	public String testJsp() {
-		return "jsp/test";
+		return "/WEB-INF/test.jsp";
 	}
 
 }
