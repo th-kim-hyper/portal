@@ -4,14 +4,14 @@
 	<modelVersion>4.0.0</modelVersion>
 	<properties>
 		<java.version>21</java.version>
-		<spring.boot.version>3.4.1</spring.boot.version>
+		<spring.boot.version>3.4.3</spring.boot.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 	</properties>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.1</version>
+		<version>3.4.3</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>kr.co.hyperinfo</groupId>
@@ -44,7 +44,7 @@
 		<dependency>
 			<groupId>org.apache.tomcat.embed</groupId>
 			<artifactId>tomcat-embed-jasper</artifactId>
-			<version>10.1.39</version>
+			<version>11.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>jakarta.servlet</groupId>
@@ -78,6 +78,10 @@
 			<groupId>org.mariadb.jdbc</groupId>
 			<artifactId>mariadb-java-client</artifactId>
 			<version>3.4.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
 		</dependency>
 		<!-- /datasource -->
 
@@ -140,7 +144,7 @@
 		</dependency>
 		<!-- lombok -->
 
-		<!-- springdoc-openapi -->
+		<!-- springdoc-openapi-->
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>

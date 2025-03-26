@@ -16,15 +16,15 @@ spring.profiles:
   storage-mode: local
   ext.enable: false
 
-jasypt:
-  db-prop:
-    password: "rpago!23"
-    algorithm: "PBEWITHHMACSHA512ANDAES_256"
-    key-obtention-iterations: 1000
-    poolSize: 1
-    provider-name: "SunJCE"
-#    salt-generator: "org.jasypt.salt.RandomSaltGenerator"
-    string-output-type: "base64"
+#jasypt:
+#  db-prop:
+#    password: "rpago!23"
+#    algorithm: "PBEWITHHMACSHA512ANDAES_256"
+#    key-obtention-iterations: 1000
+#    poolSize: 1
+#    provider-name: "SunJCE"
+##    salt-generator: "org.jasypt.salt.RandomSaltGenerator"
+#    string-output-type: "base64"
 
 ---
 ###############################################################################
@@ -90,18 +90,18 @@ logging:
       resultsettable: off
       connection: off
 
-springdoc:
-  packages-to-scan: portal
-  swagger-ui:
-    tryItOutEnabled: true
-    displayOperationId: true
-    displayRequestDuration: true
-    urls-primary-name: "dev API"
-    urls:
-      - name : "dev API"
-        url : "http://192.168.50.98:8080/portal/v3/api-docs"
-      - name : "local API"
-        url : "/v3/api-docs"
+#springdoc:
+#  packages-to-scan: portal
+#  swagger-ui:
+#    tryItOutEnabled: true
+#    displayOperationId: true
+#    displayRequestDuration: true
+#    urls-primary-name: "dev API"
+#    urls:
+#      - name : "dev API"
+#        url : "http://192.168.50.98:8080/portal/v3/api-docs"
+#      - name : "local API"
+#        url : "/v3/api-docs"
 
 
 portal:
@@ -117,6 +117,8 @@ portal:
     - "/swagger-ui.html"
     - "/swagger-ui/**"
     - "/v3/api-docs/**"
+    - "/h2-console/**"
+
 
 ---
 ###############################################################################
@@ -137,22 +139,17 @@ server:
       init-parameters:
         development: true
 
-#spring:
-#  h2:
-#    console:
-#      enabled: true
-#      path: /h2-console
-
-#spring.datasource.hikari:
-#  primary:
-#    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
-#    jdbc-url: jdbc:log4jdbc:mariadb://localhost:4406/portal?serverTimezone=UTC&characterEncoding=utf8
-#    username: root
-#    password: rpago!23
-#    maximum-pool-size: 50
-#    max-lifetime: 30000
-#    connection-timeout: 0
-#    transaction-isolation: TRANSACTION_READ_UNCOMMITTED
+spring.datasource.hikari:
+  primary:
+    driver-class-name: org.h2.Driver
+    jdbc-url: 'jdbc:h2:./db/primary'
+#    username: admin        # H2 DB 접속 ID (사용자 지정)
+#    password: password        # H2 DB 접속 PW (사용자 지정)
+  rpa:
+    driver-class-name: org.h2.Driver
+    jdbc-url: 'jdbc:h2:./db/rpa'
+#    username: admin        # H2 DB 접속 ID (사용자 지정)
+#    password: password        # H2 DB 접속 PW (사용자 지정)
 
 logging:
   level:
@@ -164,10 +161,13 @@ logging:
       resultset: off
       resultsettable: off
       connection: off
+    org:
+      springframework:
+        web: DEBUG
 
-springdoc:
-  swagger-ui:
-    urls-primary-name: "local API"
+#springdoc:
+#  swagger-ui:
+#    urls-primary-name: "local API"
 
 
 ---
@@ -188,4 +188,3 @@ logging:
       resultset: off
       resultsettable: off
       connection: off
-
