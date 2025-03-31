@@ -1,13 +1,14 @@
 ###############################################################################
 ## Application properties
 ###############################################################################
-spring.profiles:
-  group:
-    local: local-profile,common-profile
-    dev: dev-profile,common-profile
-    prod: prod-profile,common-profile
-  default: prod
-  active: prod
+spring:
+  profiles:
+    group:
+      local: local-profile,common-profile
+      dev: dev-profile,common-profile
+      prod: prod-profile,common-profile
+    default: prod
+    active: prod
 
   datasource:
     rpa: true
@@ -102,7 +103,6 @@ logging:
 #        url : "http://192.168.50.98:8080/portal/v3/api-docs"
 #      - name : "local API"
 #        url : "/v3/api-docs"
-
 
 portal:
   whitelist:

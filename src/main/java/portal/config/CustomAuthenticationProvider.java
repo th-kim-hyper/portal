@@ -28,11 +28,11 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
         String username = authentication.getName();
         String password = (String) authentication.getCredentials();
-        String authority = (username.equals("admin") ? "ROLE_ADMIN" : "ROLE_USER");
+        String authority = (username.equals("admin") ? Role.ADMIN.getAuthority() : Role.API_USER.getAuthority());
 
         log.info("#### authenticate : {} / {} / {}", username, password, authority);
 
-        UserDetails user = User
+        CustomUserDetail user = (CustomUserDetail) User
             .builder()
             .username(username)
             .password(password)
