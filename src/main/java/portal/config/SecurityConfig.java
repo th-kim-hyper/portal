@@ -13,10 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
+import portal.base.JsoupService;
 
 import java.util.List;
 
@@ -26,6 +23,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+//    private final UserDetailsService userDetailsService;
+    private final JsoupService jsoupService;
     private final ApplicationConfig applicationConfig;
     private final List<String> whitelistedIps = List.of(
         "192.168.20.52","192.168.50.172",
@@ -41,36 +40,10 @@ public class SecurityConfig {
         log.info("### whitelist({}) : {}", whitelistedIps.size(), whitelistedIps);
     }
 
-//    private List<String> whitelist = applicationConfig.portalProperties().getWhitelist();
-//    private String[] whitelistArray = whitelist.toArray(new String[0]);
-
-//    private final IpBlockService ipBlockService;
-
-//    @Bean
-//    public PasswordEncoder passwordEncoder() {
-//        log.info("#### BCryptPasswordEncoder");
-//        return new BCryptPasswordEncoder();
-//    }
-//
-//    @Bean
-//    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
-//        log.info("#### userDetailsService");
-//        UserDetails userDetails = User.builder()
-//            .username("guest")
-//            .password("")
-//            .roles("GUEST")
-//            .build();
-//
-//        return new InMemoryUserDetailsManager(userDetails);
-//    }
 @Bean
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public SecurityFilterChain preSecurityFilterChain(HttpSecurity http) throws Exception {
     log.info("#### preSecurityFilterChain");
-//    List<String> whitelist = applicationConfig.portalProperties().getWhitelist();
-//    String[] whitelistArray = whitelist.toArray(new String[0]);
-//    log.info("### whitelist({}) : {}", whitelist.size(), whitelistArray);
-
     http
         .securityMatcher(whitelistArray)
         .csrf(AbstractHttpConfigurer::disable)
@@ -89,7 +62,7 @@ public SecurityFilterChain preSecurityFilterChain(HttpSecurity http) throws Exce
 
     @Bean
     @Order(2)
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler) throws Exception {
         log.info("#### SecurityFilterChain");
         http
             .securityMatcher("/**")
@@ -100,22 +73,32 @@ public SecurityFilterChain preSecurityFilterChain(HttpSecurity http) throws Exce
             .headers(headersConfig -> headersConfig
                 .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)
             )
-            .authenticationProvider(new CustomAuthenticationProvider())
+            .authenticationProvider(new CustomAuthenticationProvider(jsoupService))
             .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                 .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
-                .requestMatchers("/user/**").hasAnyAuthority(Role.USER.getAuthority(), Role.ADMIN.getAuthority())
-                .requestMatchers("/admin/**").hasAuthority(Role.ADMIN.getAuthority())
-                .requestMatchers("/apiuser/**").hasAnyAuthority(Role.API_USER.getAuthority(), Role.ADMIN.getAuthority())
-                .requestMatchers("/apiadmin/**").hasAuthority(Role.ADMIN.getAuthority())
+                // 권한그룹 별로 접근 허용
+                .requestMatchers("/user/**").hasAnyAuthority(RoleGroup.USER_GROUP.getAuthorities())
+                .requestMatchers("/admin/**").hasAnyAuthority(RoleGroup.ADMIN_GROUP.getAuthorities())
+                .requestMatchers("/apiuser/**").hasAnyAuthority(RoleGroup.API_GROUP.getAuthorities())
+                .requestMatchers("/apiadmin/**").hasAnyAuthority(RoleGroup.ADMIN_GROUP.getAuthorities())
+//                // 개별 권한 별로 접근 허용
+//                .requestMatchers("/user/temp/**").hasAnyAuthority(Role.TEMP.getAuthority(), Role.ADMIN.getAuthority())
+//                .requestMatchers("/user/test/**").hasAnyAuthority(Role.TEST.getAuthority(), Role.ADMIN.getAuthority()                           )
                 .anyRequest().authenticated()
             )
-            .formLogin(form -> form.loginPage("/login").permitAll())
+            .formLogin(form -> form
+                .loginPage("/login")
+                .permitAll()
+                .successHandler(customAuthenticationSuccessHandler)
+                .defaultSuccessUrl("/", false)
+            )
             .logout((logoutConfig) ->
                 logoutConfig
                     .deleteCookies()
                     .invalidateHttpSession(true)
                     .logoutSuccessUrl("/")
             )
+//            .userDetailsService(userDetailsService)
         ;
 
         return http.build();

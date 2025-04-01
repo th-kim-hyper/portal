@@ -10,12 +10,19 @@ spring:
     default: prod
     active: prod
 
+portal:
   datasource:
-    rpa: true
+    rpa: false
   name: "포탈"
   version: "0.1"
   storage-mode: local
   ext.enable: false
+
+server:
+  address: 0.0.0.0
+  servlet:
+    session:
+      persistent: false
 
 #jasypt:
 #  db-prop:

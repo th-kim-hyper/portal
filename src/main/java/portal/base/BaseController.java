@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import portal.config.CustomUserDetails;
 
 import javax.net.ssl.*;
 import javax.script.ScriptEngine;
@@ -144,7 +145,11 @@ public class BaseController {
 		log.info("#### /admin");
 		// get security context value
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		return "Admin page : " + authentication.getName() + " / " + authentication.getAuthorities();
+		CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+		return "Admin page : " + customUserDetails.getUsername()
+			+ " / " + customUserDetails.getAuthorities()
+			+ " / " + customUserDetails.getClientIp()
+			+ " / " + customUserDetails.getUserDto().getEmail();
 	}
 
 	@RequestMapping("/apiuser")

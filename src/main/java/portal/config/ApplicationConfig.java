@@ -13,7 +13,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Configuration("applicationConfig")
+@Configuration
 public class ApplicationConfig {
 
 	@Bean("portalProperties")
