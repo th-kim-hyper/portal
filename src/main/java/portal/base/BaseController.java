@@ -4,11 +4,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.graalvm.polyglot.Context;
 //import org.graalvm.polyglot.Value;
 import org.graalvm.polyglot.Engine;
@@ -23,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import portal.base.dto.UserDTO;
 import portal.config.CustomUserDetails;
 
 import javax.net.ssl.*;
@@ -37,6 +41,7 @@ public class BaseController {
 
 //	private final AuthenticationManager authenticationManager;
 	final private BaseService baseService;
+	final private JsoupService jsoupService;
 
 	@Value("${spring.profiles.active}")
 	private String activeProfile;
@@ -215,6 +220,38 @@ public class BaseController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	@RequestMapping("/public")
+	@ResponseBody
+	public UserDTO publicIndex() {
+		String username = "th.kim";
+		String password = "!G!493o18!";
+		UserDTO userDTO = null;
+
+		try {
+			String json = jsoupService.mailPlugLogin(username, password);
+			log.info("#### json : {}", json);
+			ObjectMapper objectMapper = new ObjectMapper();
+			JsonNode jsonNode = objectMapper.readTree(json);
+			String email = jsonNode.get("emailAddress").asText();
+			String division = jsonNode.get("organization").asText();
+			JsonNode contact = jsonNode.get("contact");
+			String phone = contact.get("phone").asText();
+			String name = jsonNode.get("displayName").asText();
+			userDTO = UserDTO.builder()
+				.userId(username)
+				.name(name)
+				.password(password)
+				.email(email)
+				.phone(phone)
+				.division(division)
+				.build();
+		} catch (IOException | URISyntaxException e) {
+			throw new RuntimeException(e);
+		}
+
+		return userDTO;
 	}
 
 	@RequestMapping("/public/test_tl")

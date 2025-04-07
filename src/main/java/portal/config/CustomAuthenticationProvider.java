@@ -1,5 +1,7 @@
 package portal.config;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -11,6 +13,7 @@ import portal.base.JsoupService;
 import portal.base.dto.UserDTO;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.function.Function;
 
 @Slf4j
@@ -33,7 +36,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
         String username = authentication.getName();
         String password = (String) authentication.getCredentials();
-        String authority = (username.equals("admin") ? Role.ADMIN.getAuthority() : Role.API_USER.getAuthority());
+        String authority = (username.equals("admin") ? Role.ADMIN.getAuthority() : Role.USER.getAuthority());
 
         log.info("#### authenticate : {} / {} / {}", username, password, authority);
 
@@ -43,28 +46,31 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
             .password(password)
             .authorities(authority)
             .build();
+        UserDTO userDTO = null;
 
-//        UserDTO userDto = UserDTO
-//            .builder()
-//            .userId(user.getUsername())
-//            .email("chatbot@hyperinfo.co.kr")
-//            .phone("01012345678")
-//            .build();
-
-        // TODO: Implement your own logic for authentication
-        log.warn("#### Implement your own logic for authentication");
-
-        UserDTO userDto = null;
         try {
-            username = "th.kim";
-            password = "!G!493o18!";
-            userDto = jsoupService.mailPlugLogin(username, password);
-        } catch (IOException e) {
+            String json = jsoupService.mailPlugLogin(username, password);
+            log.info("#### json : {}", json);
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(json);
+            String email = jsonNode.get("emailAddress").asText();
+            String division = jsonNode.get("organization").asText();
+            JsonNode contact = jsonNode.get("contact");
+            String phone = contact.get("phone").asText();
+            String name = jsonNode.get("displayName").asText();
+            userDTO = UserDTO.builder()
+                .userId(username)
+                .name(name)
+                .password(password)
+                .email(email)
+                .phone(phone)
+                .division(division)
+                .build();
+        } catch (IOException | URISyntaxException e) {
             throw new RuntimeException(e);
         }
 
-        CustomUserDetails customUserDetails = new CustomUserDetails(user, userDto);
-
+        CustomUserDetails customUserDetails = new CustomUserDetails(user, userDTO);
         return new UsernamePasswordAuthenticationToken(customUserDetails, null, user.getAuthorities());
     }
 
