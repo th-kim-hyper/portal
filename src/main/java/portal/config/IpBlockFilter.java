@@ -12,11 +12,23 @@ import java.io.IOException;
 import java.util.List;
 
 @Slf4j
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 public class IpBlockFilter extends OncePerRequestFilter {
 
-//    private final IpBlockService ipBlockService;
-    private final List<String> whitelistedIps;
+    private final List<String> ipBlacklist;
+    private final List<String> ipWhitelist;
+
+    public IpBlockFilter(List<String> ipBlacklist, List<String> ipWhitelist) {
+        log.info("#### Create IpBlockFilter initFilterBean");
+        this.ipBlacklist = ipBlacklist;
+        this.ipWhitelist = ipWhitelist;
+    }
+
+//    @Override
+//    protected void initFilterBean() throws ServletException {
+//        super.initFilterBean();
+//        log.info("#### IpBlockFilter initFilterBean");
+//    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -43,22 +55,24 @@ public class IpBlockFilter extends OncePerRequestFilter {
             clientIp = forwardedIp.split(",")[0].trim();
         }
 
-        // IPv4 주소만 반환
-        if (clientIp.contains(":")) {
-            clientIp = "127.0.0.1"; // 기본값으로 로컬호스트 설정
-        }
+//        // IPv4 주소만 반환
+//        if (clientIp.contains(":")) {
+//            clientIp = "127.0.0.1"; // 기본값으로 로컬호스트 설정
+//        }
 
         return clientIp;
     }
 
     private boolean isIpBlocked(HttpServletRequest request) {
         String clientIp = extractClientIp(request);
-//        List<String> whitelistedIps = List.of(
-//            "192.168.20.52","192.168.50.172",
-//            "127.0.0.1"
-//        );
         log.info("#### clientIp : {}", clientIp);
-        return (whitelistedIps.contains(clientIp) != true);
+        boolean blackListed = ipBlacklist.contains(clientIp);
+
+        if(blackListed) {
+            return true;
+        }
+
+        return ipWhitelist.contains(clientIp);
     }
 
 }

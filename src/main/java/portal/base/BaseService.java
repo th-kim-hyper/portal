@@ -7,7 +7,6 @@ import java.util.Map;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -161,7 +160,7 @@ public class BaseService {
 	}
 
 	public List<String> getWhitelist() {
-		return applicationConfig.portalProperties().getWhitelist();
+		return applicationConfig.portalProperties().getPublicPaths();
 	}
 
 }

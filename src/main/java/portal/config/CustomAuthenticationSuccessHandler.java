@@ -14,11 +14,6 @@ import java.io.IOException;
 @Component
 public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-//    public CustomAuthenticationSuccessHandler() {
-//        setDefaultTargetUrl("/");
-//        setAlwaysUseDefaultTargetUrl(false);
-//    }
-
     @Override
     public void onAuthenticationSuccess(
         HttpServletRequest request,

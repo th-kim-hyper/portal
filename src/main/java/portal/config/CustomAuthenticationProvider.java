@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -47,10 +48,16 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
             .authorities(authority)
             .build();
         UserDTO userDTO = null;
+        CustomUserDetails customUserDetails = null;
 
         try {
             String json = jsoupService.mailPlugLogin(username, password);
             log.info("#### json : {}", json);
+
+            if (json == null || json.isEmpty()) {
+                throw new BadCredentialsException("로그인 아이디/비밀번호 가 올바르지 않습니다.");
+            }
+
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(json);
             String email = jsonNode.get("emailAddress").asText();
@@ -66,11 +73,11 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
                 .phone(phone)
                 .division(division)
                 .build();
+            customUserDetails = new CustomUserDetails(user, userDTO);
         } catch (IOException | URISyntaxException e) {
             throw new RuntimeException(e);
         }
 
-        CustomUserDetails customUserDetails = new CustomUserDetails(user, userDTO);
         return new UsernamePasswordAuthenticationToken(customUserDetails, null, user.getAuthorities());
     }
 

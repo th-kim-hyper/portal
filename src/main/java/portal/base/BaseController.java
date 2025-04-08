@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.graalvm.polyglot.Context;
 //import org.graalvm.polyglot.Value;
-import org.graalvm.polyglot.Engine;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -30,8 +29,6 @@ import portal.base.dto.UserDTO;
 import portal.config.CustomUserDetails;
 
 import javax.net.ssl.*;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 @Slf4j
@@ -39,7 +36,6 @@ import javax.script.ScriptException;
 @RequiredArgsConstructor
 public class BaseController {
 
-//	private final AuthenticationManager authenticationManager;
 	final private BaseService baseService;
 	final private JsoupService jsoupService;
 
@@ -61,11 +57,6 @@ public class BaseController {
 			org.graalvm.polyglot.Value result = context.eval("js", "JSON.stringify({hello: 'world'})");
 			return result.asString();
         }
-
-//		ScriptEngine graalEngine = new ScriptEngineManager().getEngineByName("graal.js");
-//		var result = graalEngine.eval("JSON.stringify({hello: 'world'})");
-//		return result.toString();
-//		return "pong";
 	}
 
 	@RequestMapping("/public/version")
@@ -121,8 +112,24 @@ public class BaseController {
 	}
 
 	@GetMapping({"/login", "/login/form"})
-	public String loginForm() {
+	public String loginForm(Model model, HttpServletRequest request) {
 		log.info("#### get /login form!!!");
+		String errorMessage = "";
+		String logoutMessage = "";
+
+		if(request.getParameterMap().containsKey("error")) {
+			log.info("#### login error!!!");
+			errorMessage = "로그인 아이디/비밀번호가 올바르지 않습니다.";
+		}
+
+		if(request.getParameterMap().containsKey("logout")) {
+			log.info("#### logout!!!");
+			logoutMessage = "로그아웃 되었습니다.";
+		}
+
+		model.addAttribute("errorMessage", errorMessage);
+		model.addAttribute("logoutMessage", logoutMessage);
+
 		return "thymeleaf/login";
 	}
 

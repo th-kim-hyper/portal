@@ -4,7 +4,7 @@
             <div class="sidebar-header border-bottom">
                 <div class="sidebar-brand deprecation-block mx-auto">
                     <img th:src="@{/hi-works.png}" alt="CoreUI Logo" class="sidebar-brand-full" height="32">
-                    <span th:text="${profile}">local</span>
+                    <span th:text="'[PROFILE]::' + ${profile} + ' 17'">local</span>
                 </div>
                 <button class="btn-close d-lg-none" type="button" data-coreui-dismiss="offcanvas" data-coreui-theme="dark" aria-label="Close" onclick="coreui.Sidebar.getInstance(document.querySelector(&quot;#sidebar&quot;)).toggle()"></button>
             </div>

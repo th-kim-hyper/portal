@@ -3,7 +3,6 @@ package portal.config;
 import java.util.List;
 import java.util.Properties;
 
-import lombok.ToString;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,7 +30,10 @@ public class ApplicationConfig {
 		private String storageMode;
 		private Properties datasource;
 		private Ext ext;
-		private List<String> whitelist;
+		private List<String> publicPaths;
+		private Boolean ipBlockEnabled;
+		private List<String> ipBlacklist;
+		private List<String> ipWhitelist;
 	}
 	
 	@Getter

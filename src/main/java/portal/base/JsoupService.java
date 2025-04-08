@@ -1,17 +1,13 @@
 package portal.base;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
-import portal.base.dto.UserDTO;
 
 import java.io.IOException;
 import java.net.*;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,149 +17,110 @@ import java.util.Map;
 public class JsoupService {
 
     private static final int TIMEOUT = 10000; // 10초
+    private static final String domain = "hyperinfo.co.kr";
+    private static final String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36";
+    private Map<String, String> defaultHeaders = new HashMap<>(){
+        {
+            put("Accept", "*/*");
+            put("Accept-Encoding", "gzip, deflate");
+            put("Connection", "keep-alive");
+            put("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        }
+    };
 
     public String mailPlugLogin(String userId, String password) throws IOException, URISyntaxException {
         String result = null;
-        String domain = "hyperinfo.co.kr";
         String url = "https://m109.mailplug.com/member/login?host_domain=" + domain + "&cid=" + userId;
-        String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36";
-        Map<String, String> data = new HashMap<>();
-        Map<String, String> headers = new HashMap<>();
-        headers.put("User-Agent", userAgent);
-        headers.put("Accept", "*/*");
-        headers.put("Accept-Encoding", "gzip, deflate");
-        headers.put("Accept-Language", "ko,ko-KR;q=0.9,en-US;q=0.8,en;q=0.7");
-        headers.put("Connection", "keep-alive");
-        headers.put("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-        headers.put("Host", "m109.mailplug.com");
 
-        // 쿠키 매니저 설정
         CookieManager cookieManager = new CookieManager();
         cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
         CookieStore cookieStore = cookieManager.getCookieStore();
-//        List<HttpCookie> cookieList = new ArrayList<>();
-
-        Connection connection = Jsoup.connect(url);
-        Connection.Response response = connection
+        Connection connection = Jsoup.connect(url)
             .cookieStore(cookieStore)
             .userAgent(userAgent)
             .timeout(TIMEOUT)
-            .method(Connection.Method.GET)
-            .execute();
+            .headers(defaultHeaders);
+        Map<String, String> formData = new HashMap<>();
 
+        // 01. 로그인폼 (GET)
+        Connection.Response response = executeGet(connection, url);
         Document document = null;
-        Map<String, String> cookies = response.cookies();
-        List<HttpCookie> httpCookies = cookieStore.getCookies();
-        String csrfMailplugToken = cookies.get("csrf_mailplug_token");
-        String ciSession = cookies.get("cisession");
-        String myValue = cookies.get("myvalue");
+        Map<String, String> responseCookies = response.cookies();
+        List<HttpCookie> cookieStoreCookies = cookieStore.getCookies();
+        String csrfMailplugToken = responseCookies.get("csrf_mailplug_token");
+        String myValue = responseCookies.get("myvalue");
 
+        // 02. 로그인 처리 (POST)
         url = "https://m109.mailplug.com/member/do_login";
-        data.clear();
-        data.put("mailplug_token", csrfMailplugToken);
-        data.put("http_host", "m109.mailplug.com");
-        data.put("domain", domain);
-        data.put("myvalue", myValue);
-        data.put("capcha_code", "");
-        data.put("language_select", "kr");
-        data.put("cid", userId);
-        data.put("cpw", password);
+        formData.clear();
+        formData.put("mailplug_token", csrfMailplugToken);
+        formData.put("http_host", "m109.mailplug.com");
+        formData.put("domain", domain);
+        formData.put("myvalue", myValue);
+        formData.put("capcha_code", "");
+        formData.put("language_select", "kr");
+        formData.put("cid", userId);
+        formData.put("cpw", password);
 
         response = connection
-            .userAgent(userAgent)
-            .timeout(TIMEOUT)
+            .url(url)
+            .header("Host", "m109.mailplug.com")
             .ignoreContentType(true)
             .followRedirects(true)
-            .headers(headers)
+            .headers(defaultHeaders)
             .method(Connection.Method.POST)
-            .data(data)
-            .url(url)
+            .data(formData)
             .execute();
 
         document = response.parse();
         String html = document.html();
 
+        // 03. 로그인 성공 여부 확인
         boolean isLoggedIn = html.contains("\"/main\"");
         log.info("#### Login Success: {}", isLoggedIn);
 
         if (isLoggedIn) {
             String bearerToken = "";
 
+            // 04. 로그인 성공 후 추가 요청
             url = "https://m109.mailplug.com/main";
-            sendRequest(connection, url, "main");
+            executeGet(connection, url);
 
+            // 05. 추가 요청 후 쿠키 저장
             url = "https://m109.mailplug.com/webmail/lists";
-            sendRequest(connection, url, "lists");
-
-            cookies = connection.response().cookies();
-
-            csrfMailplugToken = cookies.get("csrf_mailplug_token");
-            ciSession = cookies.get("cisession");
-            myValue = cookies.get("myvalue");
-            bearerToken = cookies.get("MP_TAG");
+            response = executeGet(connection, url);
+            responseCookies = response.cookies();
+            bearerToken = responseCookies.get("MP_TAG");
 
             log.info("#### Bearer Token: {}", bearerToken);
-            log.info("#### csrf_mailplug_token: {}", csrfMailplugToken);
-            log.info("#### ciSession: {}", ciSession);
-            log.info("#### myValue: {}", myValue);
 
-            setCookes(cookieStore, cookies, url, ".mailplug.com");
-            httpCookies.stream().forEach(httpCookie -> {
+            setCookies(cookieStore, responseCookies, url, ".mailplug.com");
+            cookieStoreCookies.stream().forEach(httpCookie -> {
                 log.info("#### {} CookieStore: {} = {}, {}", "lists", httpCookie.getName(), httpCookie.getValue(), httpCookie.getDomain());
             });
 
+            // 06. 메일 페이지 요청(GET)
             url = "https://gw.mailplug.com/mail";
+            connection.cookieStore(cookieStore);
+            executeGet(connection, url);
 
-            if(headers.containsKey("Host")) {
-                headers.replace("Host", new URL(url).getHost());
-            }else{
-                headers.put("Host", new URL(url).getHost());
-            }
-
-            connection
-                .headers(headers)
-                .cookieStore(cookieStore);
-            sendRequest(connection, url, "mail");
-
+            // 07. 프로필 요청(GET)
             url = "https://m109.mailplug.com/api/v2/me/profile";
-            setCookes(cookieStore, cookies, url, ".mailplug.com");
-
-            if(headers.containsKey("Host")) {
-                headers.replace("Host", new URL(url).getHost());
-            }else{
-                headers.put("Host", new URL(url).getHost());
-            }
-
-            if(headers.containsKey("Authorization")) {
-                headers.replace("Authorization", "Bearer " + bearerToken);
-            }else{
-                headers.put("Authorization", "Bearer " + bearerToken);
-            }
-
+            setCookies(cookieStore, responseCookies, url, ".mailplug.com");
             connection
-                .headers(headers)
+                .header("Host", "m109.mailplug.com")
+                .header("Authorization", "Bearer " + bearerToken)
+                .cookies(responseCookies)
                 .cookieStore(cookieStore);
-
-            try{
-                response = connection
-                    .headers(headers)
-                    .timeout(TIMEOUT)
-                    .cookies(cookies)
-                    .ignoreContentType(true)
-                    .followRedirects(false)
-                    .method(Connection.Method.GET)
-                    .url(url)
-                    .execute();
-                result = response.parse().text();
-            } catch (Exception e) {
-                log.error("profile" + " Error Send Reqeust: {}", e);
-            }
+            response = executeGet(connection, url);
+            document = response.parse();
+            result = document.text();
         }
 
         return result;
     }
 
-    private void setCookes(CookieStore cookieStore, Map<String, String> cookies, String url, String domain) {
+    private void setCookies(CookieStore cookieStore, Map<String, String> cookies, String url, String domain) {
         cookies.forEach((key, value) -> {
             URI uri = null;
             try {
@@ -222,30 +179,24 @@ public class JsoupService {
         });
     }
 
-    private void sendRequest(Connection connection, String url, String tile) {
+    private Connection.Response executeGet(Connection connection, String url) {
+
+        Connection.Response response = null;
+
         try{
-            var response = connection
-                .timeout(TIMEOUT)
+            String host = new URL(url).getHost();
+            response = connection
+                .url(url)
+                .header("Host", host)
                 .ignoreContentType(true)
                 .followRedirects(false)
                 .method(Connection.Method.GET)
-                .url(url)
                 .execute();
-            var document = response.parse();
-            var html = document.html();
-            log.info("{} HTML: {}", tile, html);
-
-            response.cookies().forEach((key, value) -> {
-                log.info("{} Cookie: {} = {}", tile, key, value);
-            });
         } catch (Exception e) {
-            log.error(tile + " Error Send Reqeust: {}", e);
+            log.error("#### executeGet", e);
         }
 
-//        var httpCookies = connection.cookieStore().getCookies();
-//        httpCookies.stream().forEach(httpCookie -> {
-//            log.info("#### {} CookieStore: {} = {}, {}", tile, httpCookie.getName(), httpCookie.getValue(), httpCookie.getDomain());
-//        });
+        return response;
     }
 
 }

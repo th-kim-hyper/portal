@@ -12,11 +12,32 @@ spring:
 
 portal:
   datasource:
-    rpa: false
+    rpa: true
   name: "포탈"
   version: "0.1"
   storage-mode: local
   ext.enable: false
+  publicPaths:
+    - "/"
+    - "/error/**"
+    - "/index.html"
+    - "/favicon.ico"
+    - "/hi-works.png"
+    - "/public/**"
+    - "/frontend/**"
+    - "/swagger-ui.html"
+    - "/swagger-ui/**"
+    - "/v3/api-docs/**"
+    - "/h2-console/**"
+  ip-block-enabled: true
+  ip-blacklist:
+    - "192.168.20.51"
+  ip-whitelist:
+    - "192.168.20.52"
+    - "127.0.0.1"
+    - "0:0:0:0:0:0:0:0:1"
+    - "::1"
+
 
 server:
   address: 0.0.0.0
@@ -111,22 +132,6 @@ logging:
 #      - name : "local API"
 #        url : "/v3/api-docs"
 
-portal:
-  whitelist:
-    - "/"
-    - "/error"
-    - "/error/**"
-    - "/index.html"
-    - "/favicon.ico"
-    - "/hi-works.png"
-    - "/public/**"
-    - "/frontend/**"
-    - "/swagger-ui.html"
-    - "/swagger-ui/**"
-    - "/v3/api-docs/**"
-    - "/h2-console/**"
-
-
 ---
 ###############################################################################
 ## local-profile
@@ -147,6 +152,9 @@ server:
         development: true
 
 spring.datasource.hikari:
+  minimum-idle: 10
+  maximum-pool-size: 30
+  housekeeping-period: 30000
   primary:
     driver-class-name: org.h2.Driver
     jdbc-url: 'jdbc:h2:./db/primary'
