@@ -19,7 +19,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import portal.base.JsoupService;
 
 import java.util.List;
-import java.util.Properties;
 
 @Slf4j
 @Configuration
@@ -29,32 +28,27 @@ public class SecurityConfig {
 
     private final JsoupService jsoupService;
     private final ApplicationConfig applicationConfig;
-//    private final List<String> whitelistedIps = List.of(
-//        "192.168.20.52","192.168.50.172",
-//        "127.0.0.1", "0:0:0:0:0:0:0:1" , "::1"  // loopback address
-//    );
-
     private String[] publicPathArray = null;
-    private Boolean ipBlock = false;
+    private Boolean ipBlockEnable = false;
     private List<String> ipWhitelist = null;
     private List<String> ipBlacklist = null;
 
     @PostConstruct
     public void init() {
         log.info("#### SecurityConfig init");
-        ApplicationConfig.PortalProperties portalProperties = applicationConfig.portalProperties();
+        var portalProperties = applicationConfig.portalProperties();
+
         List<String> publicPaths = portalProperties.getPublicPaths();
         publicPathArray = publicPaths.toArray(new String[0]);
         log.info("#### publicPaths({}) : {}", publicPaths.size(), publicPaths);
 
-        ipBlock = portalProperties.getIpBlockEnabled();
-        log.info("#### ipBlock : {}", ipBlock);
+        var ipBlock = portalProperties.getIpBlock();
+        ipBlockEnable = ipBlock.getEnable();
+        log.info("#### ipBlockEnable : {}", ipBlockEnable);
 
-        if(ipBlock){
-            ipBlacklist = portalProperties.getIpBlacklist();
-            ipWhitelist = portalProperties.getIpWhitelist();
-            log.info("#### ipBlacklist({}) : {}", ipBlacklist.size(), ipBlacklist);
-            log.info("#### ipWhitelist({}) : {}", ipWhitelist.size(), ipWhitelist);
+        if(ipBlockEnable){
+            ipWhitelist = ipBlock.getWhitelist();
+            ipBlacklist = ipBlock.getBlacklist();
         }
     }
 
@@ -70,8 +64,10 @@ public class SecurityConfig {
         log.info("#### preSecurityFilterChain");
 
         // IP 차단 필터 추가
-        if(ipBlock){
+        if(ipBlockEnable){
             log.info("#### IpBlockFilter 추가");
+            log.info("#### ipBlacklist({}) : {}", ipBlacklist.size(), ipBlacklist);
+            log.info("#### ipWhitelist({}) : {}", ipWhitelist.size(), ipWhitelist);
             http.addFilterBefore(new IpBlockFilter(ipBlacklist, ipWhitelist), UsernamePasswordAuthenticationFilter.class);
         } else {
             log.info("#### IpBlockFilter 사용안함");

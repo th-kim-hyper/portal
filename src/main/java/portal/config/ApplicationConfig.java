@@ -22,24 +22,23 @@ public class ApplicationConfig {
 		return new PortalProperties();
     }
 
-	@Getter
 	@Setter
+	@Getter
 	public static class PortalProperties {
 		private String name;
 		private String version;
 		private String storageMode;
 		private Properties datasource;
-		private Ext ext;
 		private List<String> publicPaths;
-		private Boolean ipBlockEnabled;
-		private List<String> ipBlacklist;
-		private List<String> ipWhitelist;
+		private IpBlock ipBlock;
 	}
 	
 	@Getter
 	@Setter
-	public static class Ext {
+	public static class IpBlock {
 		private Boolean enable;
+		private List<String> blacklist;
+		private List<String> whitelist;
 	}
 	
 }

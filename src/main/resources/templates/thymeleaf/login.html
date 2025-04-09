@@ -4,63 +4,141 @@
       layout:decorate="~{thymeleaf/layout/simple_layout}"
       layout:fragment="content">
 <head>
-    <title>로그인</title>
+  <title>로그인</title>
 </head>
 <body>
 <div class="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-              <div th:if="${param.error}" th:text="${errorMessage}">
-                Invalid username and password.</div>
-              <div th:if="${param.logout}" th:text="${logoutMessage}">
-                You have been logged out.</div>
-              <form th:action="@{/login}" method="post">
-                <div class="card-group d-block d-md-flex row">
-                    <div class="card col-md-7 p-4 mb-0">
-                        <div class="card-body">
-                            <h1>Login</h1>
-                            <p class="text-body-secondary">Mailplug 계정으로 로그인</p>
-                            <div class="input-group mb-3"><span class="input-group-text">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div th:if="${param.error}" th:text="${errorMessage}">
+          Invalid username and password.
+        </div>
+        <div th:if="${param.logout}" th:text="${logoutMessage}">
+          You have been logged out.
+        </div>
+        <form th:action="@{/login}" method="post">
+          <nav>
+            <div class="nav nav-tabs" id="nav-tab" role="tablist">
+              <button class="nav-link active" id="nav-mailplug-tab" data-coreui-toggle="tab"
+                      data-coreui-target="#nav-mailplug" type="button" role="tab" aria-controls="nav-mailplug"
+                      aria-selected="true">Mailplug
+              </button>
+              <button class="nav-link" id="nav-rpa-tab" data-coreui-toggle="tab" data-coreui-target="#nav-rpa"
+                      type="button" role="tab" aria-controls="nav-rpa" aria-selected="false">RPA Portal
+              </button>
+            </div>
+          </nav>
+          <div class="tab-content" id="nav-tabContent">
+            <div class="tab-pane fade show active" id="nav-mailplug" role="tabpanel" aria-labelledby="nav-mailplug-tab"
+                 tabindex="0">
+              <div class="card-group d-block d-md-flex row">
+                <div class="card col-md-7 p-4 mb-0">
+                  <div class="card-body">
+                    <h1>Login</h1>
+                    <p class="text-body-secondary">Mailplug 계정으로 로그인</p>
+                    <div class="input-group mb-3"><span class="input-group-text">
+                                    <svg class="icon">
+                                      <use xlink:href="frontend/vendors/@coreui/icons/svg/free.svg#cil-user"></use>
+                                    </svg></span>
+                      <input name="username" class="form-control" type="text" placeholder="Username">
+                    </div>
+                    <div class="input-group mb-4"><span class="input-group-text">
+                                    <svg class="icon">
+                                      <use
+                                          xlink:href="frontend/vendors/@coreui/icons/svg/free.svg#cil-lock-locked"></use>
+                                    </svg></span>
+                      <input name="password" class="form-control" type="password" placeholder="Password">
+                    </div>
+                    <div class="input-group mb-4">
+                      <br/>
+                    </div>
+                    <div class="row">
+                      <div class="col-6">
+                        <button class="btn btn-primary px-4" type="submit">Login</button>
+                      </div>
+                      <div class="col-6 text-end">
+                        <a href="#" class="btn btn-link px-0 disabled" type="button">비밀번호 초기화</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="card col-md-5 text-white bg-primary py-5">
+                  <div class="card-body text-center">
+                    <div>
+                      <h2>회원가입</h2>
+                      <p>별도의 가입없이 Mailplug 계정으로 로그인 가능합니다.</p>
+                      <a href="https://login.mailplug.com/" target="_blank" class="btn btn-lg btn-outline-warning mt-3"
+                         type="button">Mailplug
+                        <svg class="icon">
+                          <use xlink:href="frontend/vendors/@coreui/icons/svg/free.svg#cil-external-link"></use>
+                        </svg>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane fade" id="nav-rpa" role="tabpanel" aria-labelledby="nav-rpa-tab" tabindex="0">
+              <div class="card-group d-block d-md-flex row">
+                <div class="card col-md-7 p-4 mb-0">
+                  <div class="card-body">
+                    <h1>Login</h1>
+                    <p class="text-body-secondary">RPA 계정으로 로그인</p>
+                    <div class="input-group mb-3"><span class="input-group-text">
                       <svg class="icon">
                         <use xlink:href="frontend/vendors/@coreui/icons/svg/free.svg#cil-user"></use>
                       </svg></span>
-                                <input name="username" class="form-control" type="text" placeholder="Username">
-                            </div>
-                            <div class="input-group mb-4"><span class="input-group-text">
+                      <input id="rpaAdminId" class="form-control" type="text" placeholder="RPA Admin ID">
+                    </div>
+                    <div class="input-group mb-4"><span class="input-group-text">
                       <svg class="icon">
                         <use xlink:href="frontend/vendors/@coreui/icons/svg/free.svg#cil-lock-locked"></use>
                       </svg></span>
-                                <input name="password" class="form-control" type="password" placeholder="Password">
-                            </div>
-                            <div class="row">
-                                <div class="col-6">
-                                    <button class="btn btn-primary px-4" type="submit">Login</button>
-                                </div>
-                                <div class="col-6 text-end">
-                                    <a href="#" class="btn btn-link px-0 disabled" type="button">비밀번호 초기화</a>
-                                </div>
-                            </div>
-                        </div>
+                      <input id="rpaAdminPassword" class="form-control" type="password" placeholder="Password">
                     </div>
-                    <div class="card col-md-5 text-white bg-primary py-5">
-                        <div class="card-body text-center">
-                            <div>
-                                <h2>회원가입</h2>
-                                <p>별도의 가입없이 Mailplug 계정으로 로그인 가능합니다.</p>
-                                <a href="https://login.mailplug.com/" target="_blank" class="btn btn-lg btn-outline-warning mt-3" type="button">Mailplug
-                                    <svg class="icon">
-                                        <use xlink:href="frontend/vendors/@coreui/icons/svg/free.svg#cil-external-link"></use>
-                                    </svg>
-                                </a>
-                            </div>
-                        </div>
+                    <div class="input-group mb-4"><span class="input-group-text">
+                      <svg class="icon">
+                        <use xlink:href="frontend/vendors/@coreui/icons/svg/free.svg#cil-home"></use>
+                      </svg></span>
+                      <select id="tenant" class="form-select" aria-label="Default select example">
+                        <option selected>Open this select menu</option>
+                        <option value="1">One</option>
+                        <option value="2">Two</option>
+                        <option value="3">Three</option>
+                      </select>
                     </div>
+                    <div class="row">
+                      <div class="col-6">
+                        <button class="btn btn-primary px-4" type="submit">Login</button>
+                      </div>
+                      <div class="col-6 text-end">
+
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                </form>
+                <div class="card col-md-5 text-white bg-primary py-5">
+                  <div class="card-body text-center">
+                    <div>
+                      <h2>회원가입</h2>
+                      <p>별도의 가입없이 Mailplug 계정으로 로그인 가능합니다.</p>
+                      <a href="https://login.mailplug.com/" target="_blank" class="btn btn-lg btn-outline-warning mt-3"
+                         type="button">Mailplug
+                        <svg class="icon">
+                          <use xlink:href="frontend/vendors/@coreui/icons/svg/free.svg#cil-external-link"></use>
+                        </svg>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-        </div>
+          </div>
+        </form>
+      </div>
     </div>
+  </div>
 </div>
 <!-- CoreUI and necessary plugins-->
 <script th:src="@{/frontend/vendors/@coreui/coreui/js/coreui.bundle.min.js}"></script>

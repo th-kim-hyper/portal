@@ -26,6 +26,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import portal.base.dto.UserDTO;
+import portal.config.ApplicationConfig;
 import portal.config.CustomUserDetails;
 
 import javax.net.ssl.*;
@@ -36,8 +37,10 @@ import javax.script.ScriptException;
 @RequiredArgsConstructor
 public class BaseController {
 
+	final private ApplicationConfig applicationConfig;
 	final private BaseService baseService;
 	final private JsoupService jsoupService;
+	final private RpaService rpaService;
 
 	@Value("${spring.profiles.active}")
 	private String activeProfile;
@@ -107,8 +110,7 @@ public class BaseController {
 			e.printStackTrace();
 		}
 
-
-		return baseService.getPortalProperties().getVersion();
+		return applicationConfig.portalProperties().getVersion();
 	}
 
 	@GetMapping({"/login", "/login/form"})
@@ -181,7 +183,6 @@ public class BaseController {
 		return "API Admin page : " + authentication.getName() + " / " + authentication.getAuthorities();
 	}
 
-
 	private void trustSpecificCertificate(String url) throws Exception {
 		URL serverUrl = new URL(url);
 		HttpsURLConnection connection = (HttpsURLConnection) serverUrl.openConnection();
@@ -237,15 +238,32 @@ public class BaseController {
 		UserDTO userDTO = null;
 
 		try {
-			String json = jsoupService.mailPlugLogin(username, password);
+			disableSSLVerification();
+//			String json = jsoupService.mailPlugLogin(username, password);
+//			log.info("#### json : {}", json);
+//			ObjectMapper objectMapper = new ObjectMapper();
+//			JsonNode jsonNode = objectMapper.readTree(json);
+//			String email = jsonNode.get("emailAddress").asText();
+//			String division = jsonNode.get("organization").asText();
+//			JsonNode contact = jsonNode.get("contact");
+//			String phone = contact.get("phone").asText();
+//			String name = jsonNode.get("displayName").asText();
+//			userDTO = UserDTO.builder()
+//				.userId(username)
+//				.name(name)
+//				.password(password)
+//				.email(email)
+//				.phone(phone)
+//				.division(division)
+//				.build();
+			String json = rpaService.rpaAdminLogin("th.kim", "G!493o18");
 			log.info("#### json : {}", json);
 			ObjectMapper objectMapper = new ObjectMapper();
 			JsonNode jsonNode = objectMapper.readTree(json);
-			String email = jsonNode.get("emailAddress").asText();
-			String division = jsonNode.get("organization").asText();
-			JsonNode contact = jsonNode.get("contact");
-			String phone = contact.get("phone").asText();
-			String name = jsonNode.get("displayName").asText();
+			String email = jsonNode.get("id").asText() + "@hyperinfo.co.kr";
+			String division = jsonNode.get("deptSq").asText();
+			String phone = "";
+			String name = jsonNode.get("username").asText();
 			userDTO = UserDTO.builder()
 				.userId(username)
 				.name(name)

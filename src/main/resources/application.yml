@@ -16,7 +16,6 @@ portal:
   name: "포탈"
   version: "0.1"
   storage-mode: local
-  ext.enable: false
   publicPaths:
     - "/"
     - "/error/**"
@@ -29,14 +28,24 @@ portal:
     - "/swagger-ui/**"
     - "/v3/api-docs/**"
     - "/h2-console/**"
-  ip-block-enabled: true
-  ip-blacklist:
-    - "192.168.20.51"
-  ip-whitelist:
-    - "192.168.20.52"
-    - "127.0.0.1"
-    - "0:0:0:0:0:0:0:0:1"
-    - "::1"
+  ip-block:
+    enable: false
+    blacklist:
+      - "192.168.20.51"
+    whitelist:
+      - "192.168.20.52"
+      - "127.0.0.1"
+      - "0:0:0:0:0:0:0:0:1"
+      - "::1"
+#
+#  ip-block-enabled: true
+#  ip-blacklist:
+#    - "192.168.20.51"
+#  ip-whitelist:
+#    - "192.168.20.52"
+#    - "127.0.0.1"
+#    - "0:0:0:0:0:0:0:0:1"
+#    - "::1"
 
 
 server:
