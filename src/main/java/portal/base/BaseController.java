@@ -12,8 +12,6 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.graalvm.polyglot.Context;
-//import org.graalvm.polyglot.Value;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -30,7 +28,6 @@ import portal.config.ApplicationConfig;
 import portal.config.CustomUserDetails;
 
 import javax.net.ssl.*;
-import javax.script.ScriptException;
 
 @Slf4j
 @Controller
@@ -53,13 +50,10 @@ public class BaseController {
 		return "thymeleaf/index";
 	}
 
-	@RequestMapping("/public/ping")
-	public @ResponseBody String ping() throws ScriptException {
+	@GetMapping("/public/ping")
+	public @ResponseBody String ping() {
 		log.info("#### /public/ping");
-        try (Context context = Context.create("js")) {
-			org.graalvm.polyglot.Value result = context.eval("js", "JSON.stringify({hello: 'world'})");
-			return result.asString();
-        }
+        return "pong";
 	}
 
 	@RequestMapping("/public/version")
@@ -256,7 +250,11 @@ public class BaseController {
 //				.phone(phone)
 //				.division(division)
 //				.build();
-			String json = rpaService.rpaAdminLogin("th.kim", "G!493o18");
+
+			String tenantList = rpaService.rpaGetTenantList("th.kim", "G!493o18");
+			log.info("#### tenantList : {}", tenantList);
+
+			String json = rpaService.rpaAdminLogin("th.kim", "G!493o18", "TN_32df97191f364ddba5219fcca777a0b0");
 			log.info("#### json : {}", json);
 			ObjectMapper objectMapper = new ObjectMapper();
 			JsonNode jsonNode = objectMapper.readTree(json);

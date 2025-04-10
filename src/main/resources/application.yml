@@ -18,6 +18,7 @@ portal:
   storage-mode: local
   publicPaths:
     - "/"
+    - "/error"
     - "/error/**"
     - "/index.html"
     - "/favicon.ico"
@@ -37,32 +38,12 @@ portal:
       - "127.0.0.1"
       - "0:0:0:0:0:0:0:0:1"
       - "::1"
-#
-#  ip-block-enabled: true
-#  ip-blacklist:
-#    - "192.168.20.51"
-#  ip-whitelist:
-#    - "192.168.20.52"
-#    - "127.0.0.1"
-#    - "0:0:0:0:0:0:0:0:1"
-#    - "::1"
-
 
 server:
   address: 0.0.0.0
   servlet:
     session:
       persistent: false
-
-#jasypt:
-#  db-prop:
-#    password: "rpago!23"
-#    algorithm: "PBEWITHHMACSHA512ANDAES_256"
-#    key-obtention-iterations: 1000
-#    poolSize: 1
-#    provider-name: "SunJCE"
-##    salt-generator: "org.jasypt.salt.RandomSaltGenerator"
-#    string-output-type: "base64"
 
 ---
 ###############################################################################
@@ -72,7 +53,7 @@ spring.config.activate.on-profile: common-profile
 
 # thymeleaf view
 spring.thymeleaf:
-  cache: false
+  cache: true
   prefix: classpath:/templates/
   suffix: .html
   view-names: thymeleaf/*
@@ -154,6 +135,8 @@ spring:
     livereload:
       enabled: true
 
+spring.thymeleaf.cache: false
+
 server:
   servlet:
     jsp:
@@ -188,11 +171,6 @@ logging:
     org:
       springframework:
         web: DEBUG
-
-#springdoc:
-#  swagger-ui:
-#    urls-primary-name: "local API"
-
 
 ---
 ###############################################################################

@@ -17,7 +17,7 @@
         <div th:if="${param.logout}" th:text="${logoutMessage}">
           You have been logged out.
         </div>
-        <form th:action="@{/login}" method="post">
+        <form id="loginForm" th:action="@{/login}" method="post">
           <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
               <button class="nav-link active" id="nav-mailplug-tab" data-coreui-toggle="tab"
@@ -37,18 +37,18 @@
                   <div class="card-body">
                     <h1>Login</h1>
                     <p class="text-body-secondary">Mailplug 계정으로 로그인</p>
-                    <div class="input-group mb-3"><span class="input-group-text">
-                                    <svg class="icon">
-                                      <use xlink:href="frontend/vendors/@coreui/icons/svg/free.svg#cil-user"></use>
-                                    </svg></span>
-                      <input name="username" class="form-control" type="text" placeholder="Username">
+                    <div class="input-group mb-3">
+                      <span class="input-group-text"><svg class="icon">
+                        <use xlink:href="frontend/vendors/@coreui/icons/svg/free.svg#cil-user"></use>
+                      </svg></span>
+                      <input id="mailplug-username" name="username" class="form-control" type="text"
+                             placeholder="Username">
                     </div>
-                    <div class="input-group mb-4"><span class="input-group-text">
-                                    <svg class="icon">
-                                      <use
-                                          xlink:href="frontend/vendors/@coreui/icons/svg/free.svg#cil-lock-locked"></use>
-                                    </svg></span>
-                      <input name="password" class="form-control" type="password" placeholder="Password">
+                    <div class="input-group mb-4">
+                      <span class="input-group-text"><svg class="icon">
+                        <use xlink:href="frontend/vendors/@coreui/icons/svg/free.svg#cil-lock-locked"></use>
+                      </svg></span>
+                      <input id="mailplug-password" name="password" class="form-control" type="password" placeholder="Password">
                     </div>
                     <div class="input-group mb-4">
                       <br/>
@@ -57,7 +57,7 @@
                       <div class="col-6">
                         <button class="btn btn-primary px-4" type="submit">Login</button>
                       </div>
-                      <div class="col-6 text-end">
+                      <div class="col-6 text-end d-none">
                         <a href="#" class="btn btn-link px-0 disabled" type="button">비밀번호 초기화</a>
                       </div>
                     </div>
@@ -102,10 +102,7 @@
                         <use xlink:href="frontend/vendors/@coreui/icons/svg/free.svg#cil-home"></use>
                       </svg></span>
                       <select id="tenant" class="form-select" aria-label="Default select example">
-                        <option selected>Open this select menu</option>
-                        <option value="1">One</option>
-                        <option value="2">Two</option>
-                        <option value="3">Three</option>
+                        <option value="">테넌트를 선택하세요</option>
                       </select>
                     </div>
                     <div class="row">
@@ -122,9 +119,9 @@
                   <div class="card-body text-center">
                     <div>
                       <h2>회원가입</h2>
-                      <p>별도의 가입없이 Mailplug 계정으로 로그인 가능합니다.</p>
-                      <a href="https://login.mailplug.com/" target="_blank" class="btn btn-lg btn-outline-warning mt-3"
-                         type="button">Mailplug
+                      <p>RPA Admin 포탈에 등록한 계정으로 로그인 가능합니다.</p>
+                      <a href="https://192.168.20.51:8080/admin" target="_blank" class="btn btn-lg btn-outline-warning mt-3"
+                         type="button">Rpa Admin 포탈
                         <svg class="icon">
                           <use xlink:href="frontend/vendors/@coreui/icons/svg/free.svg#cil-external-link"></use>
                         </svg>
@@ -142,5 +139,39 @@
 </div>
 <!-- CoreUI and necessary plugins-->
 <script th:src="@{/frontend/vendors/@coreui/coreui/js/coreui.bundle.min.js}"></script>
+<script>
+    console.log('#### form submit ####');
+    // document.addEventListener('DOMContentLoaded', function () {
+    //     const loginForm = document.getElementById('loginForm');
+    //     loginForm.addEventListener('submit', function (e) {
+    //         const selectedTab = document.querySelector('#nav-tabContent div.tab-pane.active');
+    //         const selectedTabContent = selectedTab.id;
+    //         console.log('selectedTabContent', selectedTabContent);
+    //         console.log('form submit', e);
+    //         // e.preventDefault();
+    //
+    //         if (selectedTabContent == 'nav-mailplug') {
+    //             mailplugLogin(e);
+    //         } else if (selectedTabContent == 'nav-rpa') {
+    //             rpaLogin(e);
+    //         }
+    //     });
+    //
+    //     function mailplugLogin(e) {
+    //         const username = document.querySelector('#mailplug-username').value;
+    //         const password = document.querySelector('#mailplug-password').value;
+    //         console.log('Mailplug Login', username, password);
+    //     }
+    //
+    //     function rpaLogin(e) {
+    //         const rpaAdminId = document.getElementById('rpaAdminId').value;
+    //         const rpaAdminPassword = document.getElementById('rpaAdminPassword').value;
+    //         const tenant = document.getElementById('tenant').value;
+    //         console.log('RPA Login', rpaAdminId, rpaAdminPassword, tenant);
+    //         // Perform RPA login logic here
+    //     }
+    // });
+
+</script>
 </body>
 </html>
