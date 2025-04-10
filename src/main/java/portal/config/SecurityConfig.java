@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -16,6 +17,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import portal.base.JsoupService;
 
 import java.util.List;
@@ -59,6 +63,19 @@ public class SecurityConfig {
     }
 
     @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOriginPatterns(List.of("*")); // 모든 도메인 허용
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 모든 HTTP 메서드 허용
+        configuration.setAllowedHeaders(List.of("*")); // 모든 헤더 허용
+        configuration.setAllowCredentials(true); // 인증 정보 포함 허용
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
+    @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)
     public SecurityFilterChain preSecurityFilterChain(HttpSecurity http, UserDetailsService userDetailsService) throws Exception {
         log.info("#### preSecurityFilterChain");
@@ -72,18 +89,26 @@ public class SecurityConfig {
         } else {
             log.info("#### IpBlockFilter 사용안함");
         }
-        
+
+        // csrf, cors, httpBasic, frameOption 비활성화 및 DispatcherType.FORWARD 에 대한 접근 허용
+//        http
+//            .csrf(AbstractHttpConfigurer::disable)
+//            .cors(AbstractHttpConfigurer::disable)
+//            .httpBasic(AbstractHttpConfigurer::disable)
+//            .headers(headersConfig -> headersConfig
+//                .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)
+//            )
+//            .authorizeHttpRequests(authorizeRequests -> authorizeRequests
+//                .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
+//            );
+
+        // publicPath에 대한 접근 허용
         http
             .securityMatcher(publicPathArray)
-            .csrf(AbstractHttpConfigurer::disable)
-            .cors(AbstractHttpConfigurer::disable)
-            .httpBasic(AbstractHttpConfigurer::disable)
-            .headers(headersConfig -> headersConfig
-                .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)
-            )
             .authorizeHttpRequests(authorizeRequests -> authorizeRequests
-                .requestMatchers(publicPathArray).permitAll()
+                .anyRequest().permitAll()
             );
+
         return http.build();
     }
 
@@ -92,9 +117,11 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler) throws Exception {
         log.info("#### SecurityFilterChain");
         http
-            .securityMatcher("/user/**", "/admin/**", "/apiuser/**", "/apiadmin/**")
+            .securityMatcher("/**")
             .csrf(AbstractHttpConfigurer::disable)
-            .cors(AbstractHttpConfigurer::disable)
+            .cors(cors -> cors
+                .configurationSource(corsConfigurationSource())
+            )
             .httpBasic(AbstractHttpConfigurer::disable)
             .headers(headersConfig -> headersConfig
                 .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)
