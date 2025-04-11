@@ -14,7 +14,7 @@ import java.util.Map;
 
 @Slf4j
 @Service
-public class JsoupService {
+public class MailplugService {
 
     private static final int TIMEOUT = 10000; // 10초
     private static final String domain = "hyperinfo.co.kr";

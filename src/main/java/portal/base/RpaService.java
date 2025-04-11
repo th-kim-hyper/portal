@@ -19,7 +19,6 @@ import java.util.regex.Pattern;
 public class RpaService {
 
     private static final int TIMEOUT = 10000; // 10초
-//    private static final String domain = "hyperinfo.co.kr";
     private static final String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36";
     private final Map<String, String> defaultHeaders = new HashMap<>(){
         {

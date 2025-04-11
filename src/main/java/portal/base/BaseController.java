@@ -36,7 +36,7 @@ public class BaseController {
 
 	final private ApplicationConfig applicationConfig;
 	final private BaseService baseService;
-	final private JsoupService jsoupService;
+	final private MailplugService mailplugService;
 	final private RpaService rpaService;
 
 	@Value("${spring.profiles.active}")
@@ -222,6 +222,23 @@ public class BaseController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	@PostMapping("/public/tenants")
+	@ResponseBody
+	public String publicTenantList(@RequestBody Map<String, String> params) {
+		String username = params.get("username");
+		String password = params.get("password");
+		String result = null;
+
+		try {
+			disableSSLVerification();
+			result = rpaService.rpaGetTenantList(username, password);
+		} catch (IOException | URISyntaxException e) {
+			throw new RuntimeException(e);
+		}
+
+		return result;
 	}
 
 	@RequestMapping("/public")

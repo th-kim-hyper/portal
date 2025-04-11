@@ -9,8 +9,8 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.User;
-import portal.base.JsoupService;
+import portal.base.MailplugService;
+import portal.base.RpaService;
 import portal.base.dto.UserDTO;
 
 import java.io.IOException;
@@ -21,7 +21,8 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class CustomAuthenticationProvider implements AuthenticationProvider {
 
-    private final JsoupService jsoupService;
+    private final MailplugService mailplugService;
+    private final RpaService rpaservice;
     private Function<Authentication, Authentication> authenticationFunction = null;
 
     public void SetAuthenticationFunction(Function<Authentication, Authentication> authenticationFunction) {
@@ -31,7 +32,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
-        if(authenticationFunction != null) {
+        if (authenticationFunction != null) {
             return authenticationFunction.apply(authentication);
         }
 
@@ -41,44 +42,114 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
         log.info("#### authenticate : {} / {} / {}", username, password, authority);
 
-        User user = (User) User
-            .builder()
-            .username(username)
-            .password(password)
-            .authorities(authority)
-            .build();
-        UserDTO userDTO = null;
-        CustomUserDetails customUserDetails = null;
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getDetails();
+        log.info("#### customUserDetails : {}", customUserDetails);
 
-        try {
-            String json = jsoupService.mailPlugLogin(username, password);
-            log.info("#### json : {}", json);
+        String authType = customUserDetails.getAuthType();
+        log.info("#### authType : {}", authType);
 
-            if (json == null || json.isEmpty()) {
-                throw new BadCredentialsException("로그인 아이디/비밀번호 가 올바르지 않습니다.");
+        if ("rpa".equals(authType)) {
+//            String tenantId = customUserDetails.getTenantId();
+            try {
+                customUserDetails = rpaLogin(customUserDetails);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
             }
-
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode jsonNode = objectMapper.readTree(json);
-            String email = jsonNode.get("emailAddress").asText();
-            String division = jsonNode.get("organization").asText();
-            JsonNode contact = jsonNode.get("contact");
-            String phone = contact.get("phone").asText();
-            String name = jsonNode.get("displayName").asText();
-            userDTO = UserDTO.builder()
-                .userId(username)
-                .name(name)
-                .password(password)
-                .email(email)
-                .phone(phone)
-                .division(division)
-                .build();
-            customUserDetails = new CustomUserDetails(user, userDTO);
-        } catch (IOException | URISyntaxException e) {
-            throw new RuntimeException(e);
+        } else {
+            try {
+                customUserDetails = mailplugLogin(customUserDetails);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
         }
 
-        return new UsernamePasswordAuthenticationToken(customUserDetails, null, user.getAuthorities());
+//        try {
+//            String json = mailplugService.mailPlugLogin(username, password);
+//            log.info("#### json : {}", json);
+//
+//            if (json == null || json.isEmpty()) {
+//                throw new BadCredentialsException("로그인 아이디/비밀번호 가 올바르지 않습니다.");
+//            }
+//
+//            ObjectMapper objectMapper = new ObjectMapper();
+//            JsonNode jsonNode = objectMapper.readTree(json);
+//            String email = jsonNode.get("emailAddress").asText();
+//            String division = jsonNode.get("organization").asText();
+//            JsonNode contact = jsonNode.get("contact");
+//            String phone = contact.get("phone").asText();
+//            String name = jsonNode.get("displayName").asText();
+//            UserDTO userDTO = UserDTO.builder()
+//                .userId(username)
+//                .name(name)
+//                .password(password)
+//                .email(email)
+//                .phone(phone)
+//                .division(division)
+//                .build();
+//            customUserDetails.setUserDto(userDTO);
+//        } catch (IOException | URISyntaxException e) {
+//            throw new RuntimeException(e);
+//        }
+
+        return new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+    }
+
+    private CustomUserDetails mailplugLogin(CustomUserDetails customUserDetails) throws IOException, URISyntaxException {
+        String username = customUserDetails.getUsername();
+        String password = customUserDetails.getPassword();
+        String json = mailplugService.mailPlugLogin(username, password);
+        log.info("#### json : {}", json);
+
+        if (json == null || json.isEmpty()) {
+            throw new BadCredentialsException("로그인 아이디/비밀번호 가 올바르지 않습니다.");
+        }
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode jsonNode = objectMapper.readTree(json);
+        String email = jsonNode.get("emailAddress").asText();
+        String division = jsonNode.get("organization").asText();
+        JsonNode contact = jsonNode.get("contact");
+        String phone = contact.get("phone").asText();
+        String name = jsonNode.get("displayName").asText();
+        UserDTO userDTO = UserDTO.builder()
+            .userId(username)
+            .name(name)
+            .password(password)
+            .email(email)
+            .phone(phone)
+            .division(division)
+            .build();
+        customUserDetails.setUserDto(userDTO);
+        return customUserDetails;
+    }
+
+    private CustomUserDetails rpaLogin(CustomUserDetails customUserDetails) throws IOException, URISyntaxException {
+        String username = customUserDetails.getUsername();
+        String password = customUserDetails.getPassword();
+        String tenantId = customUserDetails.getTenantId();
+        String json = rpaservice.rpaAdminLogin(username, password, tenantId);
+        log.info("#### json : {}", json);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode jsonNode = objectMapper.readTree(json);
+        String email = jsonNode.get("id").asText() + "@hyperinfo.co.kr";
+        String division = jsonNode.get("deptSq").asText();
+        String name = jsonNode.get("username").asText();
+
+        UserDTO userDTO = UserDTO.builder()
+            .userId(username)
+            .name(name)
+            .password(password)
+            .email(email)
+            .division(division)
+            .build();
+
+        customUserDetails.setUserDto(userDTO);
+        return customUserDetails;
     }
 
     @Override

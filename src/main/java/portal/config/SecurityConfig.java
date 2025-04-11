@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -20,7 +19,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import portal.base.JsoupService;
+import portal.base.MailplugService;
+import portal.base.RpaService;
 
 import java.util.List;
 
@@ -30,7 +30,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JsoupService jsoupService;
+    private final MailplugService mailplugService;
+    private final RpaService rpaService;
     private final ApplicationConfig applicationConfig;
     private String[] publicPathArray = null;
     private Boolean ipBlockEnable = false;
@@ -58,8 +59,7 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-        return manager;
+        return new InMemoryUserDetailsManager();
     }
 
     @Bean
@@ -76,8 +76,20 @@ public class SecurityConfig {
     }
 
     @Bean
+    public CustomAuthenticationProvider customAuthenticationProvider() {
+        log.info("#### create customAuthenticationProvider bean");
+        return new CustomAuthenticationProvider(mailplugService, rpaService);
+    }
+
+    @Bean
+    public CustomAuthenticationFilter customAuthenticationFilter() {
+        log.info("#### create customAuthenticationFilter bean");
+        return new CustomAuthenticationFilter();
+    }
+
+    @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)
-    public SecurityFilterChain preSecurityFilterChain(HttpSecurity http, UserDetailsService userDetailsService) throws Exception {
+    public SecurityFilterChain preSecurityFilterChain(HttpSecurity http) throws Exception {
         log.info("#### preSecurityFilterChain");
 
         // IP 차단 필터 추가
@@ -90,22 +102,19 @@ public class SecurityConfig {
             log.info("#### IpBlockFilter 사용안함");
         }
 
-        // csrf, cors, httpBasic, frameOption 비활성화 및 DispatcherType.FORWARD 에 대한 접근 허용
-//        http
-//            .csrf(AbstractHttpConfigurer::disable)
-//            .cors(AbstractHttpConfigurer::disable)
-//            .httpBasic(AbstractHttpConfigurer::disable)
-//            .headers(headersConfig -> headersConfig
-//                .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)
-//            )
-//            .authorizeHttpRequests(authorizeRequests -> authorizeRequests
-//                .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
-//            );
-
         // publicPath에 대한 접근 허용
         http
             .securityMatcher(publicPathArray)
+            .csrf(AbstractHttpConfigurer::disable)
+            .cors(cors -> cors
+                .configurationSource(corsConfigurationSource())
+            )
+            .httpBasic(AbstractHttpConfigurer::disable)
+            .headers(headersConfig -> headersConfig
+                .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)
+            )
             .authorizeHttpRequests(authorizeRequests -> authorizeRequests
+                .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
                 .anyRequest().permitAll()
             );
 
@@ -126,7 +135,8 @@ public class SecurityConfig {
             .headers(headersConfig -> headersConfig
                 .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)
             )
-            .authenticationProvider(new CustomAuthenticationProvider(jsoupService))
+            .addFilterAt(customAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+            .authenticationProvider(customAuthenticationProvider())
             .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                 .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
                 // 권한그룹 별로 접근 허용
@@ -144,6 +154,7 @@ public class SecurityConfig {
                 .permitAll()
                 .successHandler(customAuthenticationSuccessHandler)
                 .defaultSuccessUrl("/", false)
+                .failureUrl("/login?error=true")
             )
             .logout((logoutConfig) ->
                 logoutConfig
