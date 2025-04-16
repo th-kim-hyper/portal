@@ -42,77 +42,34 @@ public class SecurityConfig {
     public void init() {
         log.info("#### SecurityConfig init");
         var portalProperties = applicationConfig.portalProperties();
-
+ 
         List<String> publicPaths = portalProperties.getPublicPaths();
         publicPathArray = publicPaths.toArray(new String[0]);
         log.info("#### publicPaths({}) : {}", publicPaths.size(), publicPaths);
-
+ 
         var ipBlock = portalProperties.getIpBlock();
         ipBlockEnable = ipBlock.getEnable();
         log.info("#### ipBlockEnable : {}", ipBlockEnable);
-
-        if(ipBlockEnable){
+ 
+        if (ipBlockEnable) {
             ipWhitelist = ipBlock.getWhitelist();
             ipBlacklist = ipBlock.getBlacklist();
         }
     }
 
     @Bean
-    public UserDetailsService userDetailsService() {
-        return new InMemoryUserDetailsManager();
-    }
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("*")); // 모든 도메인 허용
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 모든 HTTP 메서드 허용
-        configuration.setAllowedHeaders(List.of("*")); // 모든 헤더 허용
-        configuration.setAllowCredentials(true); // 인증 정보 포함 허용
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
-
-    @Bean
-    public CustomAuthenticationProvider customAuthenticationProvider() {
-        log.info("#### create customAuthenticationProvider bean");
-        return new CustomAuthenticationProvider(mailplugService, rpaService);
-    }
-
-    @Bean
-    public CustomAuthenticationFilter customAuthenticationFilter() {
-        log.info("#### create customAuthenticationFilter bean");
-        return new CustomAuthenticationFilter();
-    }
-
-    @Bean
-    @Order(Ordered.HIGHEST_PRECEDENCE)
-    public SecurityFilterChain preSecurityFilterChain(HttpSecurity http) throws Exception {
-        log.info("#### preSecurityFilterChain");
-
-        // IP 차단 필터 추가
-        if(ipBlockEnable){
-            log.info("#### IpBlockFilter 추가");
-            log.info("#### ipBlacklist({}) : {}", ipBlacklist.size(), ipBlacklist);
-            log.info("#### ipWhitelist({}) : {}", ipWhitelist.size(), ipWhitelist);
-            http.addFilterBefore(new IpBlockFilter(ipBlacklist, ipWhitelist), UsernamePasswordAuthenticationFilter.class);
-        } else {
-            log.info("#### IpBlockFilter 사용안함");
-        }
-
-        // publicPath에 대한 접근 허용
+    public SecurityFilterChain simpleFilterChain(HttpSecurity http) throws Exception {
+        log.info("#### simpleFilterChain");
         http
-            .securityMatcher(publicPathArray)
-            .csrf(AbstractHttpConfigurer::disable)
-            .cors(cors -> cors
-                .configurationSource(corsConfigurationSource())
-            )
-            .httpBasic(AbstractHttpConfigurer::disable)
-            .headers(headersConfig -> headersConfig
-                .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)
-            )
+           .securityMatcher(publicPathArray)
+//            .csrf(AbstractHttpConfigurer::disable)
+//            .cors(cors -> cors
+//                .configurationSource(corsConfigurationSource())
+//            )
+//            .httpBasic(AbstractHttpConfigurer::disable)
+//            .headers(headersConfig -> headersConfig
+//                .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)
+//            )
             .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                 .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
                 .anyRequest().permitAll()
@@ -121,50 +78,111 @@ public class SecurityConfig {
         return http.build();
     }
 
-    @Bean
-    @Order(2)
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler) throws Exception {
-        log.info("#### SecurityFilterChain");
-        http
-            .securityMatcher("/**")
-            .csrf(AbstractHttpConfigurer::disable)
-            .cors(cors -> cors
-                .configurationSource(corsConfigurationSource())
-            )
-            .httpBasic(AbstractHttpConfigurer::disable)
-            .headers(headersConfig -> headersConfig
-                .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)
-            )
-            .addFilterAt(customAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-            .authenticationProvider(customAuthenticationProvider())
-            .authorizeHttpRequests(authorizeRequests -> authorizeRequests
-                .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
-                // 권한그룹 별로 접근 허용
-                .requestMatchers("/user/**").hasAnyAuthority(RoleGroup.USER_GROUP.getAuthorities())
-                .requestMatchers("/admin/**").hasAnyAuthority(RoleGroup.ADMIN_GROUP.getAuthorities())
-                .requestMatchers("/apiuser/**").hasAnyAuthority(RoleGroup.API_GROUP.getAuthorities())
-                .requestMatchers("/apiadmin/**").hasAnyAuthority(RoleGroup.ADMIN_GROUP.getAuthorities())
-//                // 개별 권한 별로 접근 허용
-//                .requestMatchers("/user/temp/**").hasAnyAuthority(Role.TEMP.getAuthority(), Role.ADMIN.getAuthority())
-//                .requestMatchers("/user/test/**").hasAnyAuthority(Role.TEST.getAuthority(), Role.ADMIN.getAuthority()                           )
-                .anyRequest().authenticated()
-            )
-            .formLogin(form -> form
-                .loginPage("/login")
-                .permitAll()
-                .successHandler(customAuthenticationSuccessHandler)
-                .defaultSuccessUrl("/", false)
-                .failureUrl("/login?error=true")
-            )
-            .logout((logoutConfig) ->
-                logoutConfig
-                    .deleteCookies()
-                    .invalidateHttpSession(true)
-                    .logoutSuccessUrl("/")
-            )
-//            .userDetailsService(userDetailsService)
-        ;
+//
+//    @Bean
+//    public CorsConfigurationSource corsConfigurationSource() {
+//        CorsConfiguration configuration = new CorsConfiguration();
+//        configuration.setAllowedOriginPatterns(List.of("*")); // 모든 도메인 허용
+//        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 모든 HTTP 메서드 허용
+//        configuration.setAllowedHeaders(List.of("*")); // 모든 헤더 허용
+//        configuration.setAllowCredentials(true); // 인증 정보 포함 허용
+//
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", configuration);
+//        return source;
+//    }
+//
+//    @Bean
+//    public UserDetailsService userDetailsService() {
+//        return new InMemoryUserDetailsManager();
+//    }
+//
+//    @Bean
+//    public CustomAuthenticationProvider customAuthenticationProvider() {
+//        log.info("#### create customAuthenticationProvider bean");
+//        return new CustomAuthenticationProvider(mailplugService, rpaService);
+//    }
 
-        return http.build();
-    }
+//    @Bean
+//    @Order(Ordered.HIGHEST_PRECEDENCE)
+//    public SecurityFilterChain preSecurityFilterChain(HttpSecurity http) throws Exception {
+//        log.info("#### preSecurityFilterChain");
+//
+//        // IP 차단 필터 추가
+//        if(ipBlockEnable){
+//            log.info("#### IpBlockFilter 추가");
+//            log.info("#### ipBlacklist({}) : {}", ipBlacklist.size(), ipBlacklist);
+//            log.info("#### ipWhitelist({}) : {}", ipWhitelist.size(), ipWhitelist);
+//            http.addFilterBefore(new IpBlockFilter(ipBlacklist, ipWhitelist), UsernamePasswordAuthenticationFilter.class);
+//        } else {
+//            log.info("#### IpBlockFilter 사용안함");
+//        }
+//
+//        // publicPath에 대한 접근 허용
+//        http
+//            .securityMatcher(publicPathArray)
+//            .csrf(AbstractHttpConfigurer::disable)
+//            .cors(cors -> cors
+//                .configurationSource(corsConfigurationSource())
+//            )
+//            .httpBasic(AbstractHttpConfigurer::disable)
+//            .headers(headersConfig -> headersConfig
+//                .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)
+//            )
+//            .authorizeHttpRequests(authorizeRequests -> authorizeRequests
+//                .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
+//                .anyRequest().permitAll()
+//            );
+//
+//        return http.build();
+//    }
+//
+//    @Bean
+//    @Order(2)
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http, CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler) throws Exception {
+//        log.info("#### SecurityFilterChain");
+//        CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter();
+//
+//        http
+//            .securityMatcher("/**")
+////            .csrf(AbstractHttpConfigurer::disable)
+////            .cors(cors -> cors
+////                .configurationSource(corsConfigurationSource())
+////            )
+////            .httpBasic(AbstractHttpConfigurer::disable)
+////            .headers(headersConfig -> headersConfig
+////                .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)
+////            )
+//            .addFilterAt(customAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+//            .authenticationProvider(customAuthenticationProvider())
+//            .authorizeHttpRequests(authorizeRequests -> authorizeRequests
+//                .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
+//                // 권한그룹 별로 접근 허용
+//                .requestMatchers("/user/**").hasAnyAuthority(RoleGroup.USER_GROUP.getAuthorities())
+//                .requestMatchers("/admin/**").hasAnyAuthority(RoleGroup.ADMIN_GROUP.getAuthorities())
+//                .requestMatchers("/apiuser/**").hasAnyAuthority(RoleGroup.API_GROUP.getAuthorities())
+//                .requestMatchers("/apiadmin/**").hasAnyAuthority(RoleGroup.ADMIN_GROUP.getAuthorities())
+////                // 개별 권한 별로 접근 허용
+////                .requestMatchers("/user/temp/**").hasAnyAuthority(Role.TEMP.getAuthority(), Role.ADMIN.getAuthority())
+////                .requestMatchers("/user/test/**").hasAnyAuthority(Role.TEST.getAuthority(), Role.ADMIN.getAuthority()                           )
+//                .anyRequest().authenticated()
+//            )
+//            .formLogin(form -> form
+//                .loginPage("/login")
+//                .permitAll()
+//                .successHandler(customAuthenticationSuccessHandler)
+//                .defaultSuccessUrl("/", false)
+//                .failureUrl("/login?error=true")
+//            )
+//            .logout((logoutConfig) ->
+//                logoutConfig
+//                    .deleteCookies()
+//                    .invalidateHttpSession(true)
+//                    .logoutSuccessUrl("/")
+//            )
+////            .userDetailsService(userDetailsService)
+//        ;
+//
+//        return http.build();
+//    }
 }

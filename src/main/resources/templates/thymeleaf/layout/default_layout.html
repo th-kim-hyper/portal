@@ -8,7 +8,16 @@
 <body>
 <th:block th:replace="~{thymeleaf/fragments/sidebar :: sidebar}"></th:block>
 <div class="wrapper d-flex flex-column min-vh-100">
-  <th:block th:replace="~{thymeleaf/fragments/header :: header}"></th:block>
+  <th:block th:replace="~{thymeleaf/fragments/header :: header(mainTitle=${mainTitle})}">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb my-0">
+        <li class="breadcrumb-item"><a href="#">Home</a>
+        </li>
+        <li class="breadcrumb-item active"><span>OCR</span>
+        </li>
+      </ol>
+    </nav>
+  </th:block>
   <th:block layout:fragment="content"></th:block>
   <th:block th:replace="~{thymeleaf/fragments/footer :: footer}"></th:block>
 </div>

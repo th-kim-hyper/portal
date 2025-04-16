@@ -28,6 +28,9 @@
               <button class="nav-link" id="nav-rpa-tab" data-coreui-toggle="tab" data-coreui-target="#nav-rpa"
                       type="button" role="tab" aria-controls="nav-rpa" aria-selected="false">RPA Portal
               </button>
+              <button class="nav-link" id="nav-wc-tab" data-coreui-toggle="tab" data-coreui-target="#nav-wc"
+                      type="button" role="tab" aria-controls="nav-wc" aria-selected="false">Web Component
+              </button>
             </div>
           </nav>
           <div class="tab-content" id="nav-tabContent">
@@ -104,6 +107,7 @@
                         <use xlink:href="frontend/vendors/@coreui/icons/svg/free.svg#cil-home"></use>
                       </svg></span>
                       <select id="tenantSelect" class="form-select" aria-label="Default select example">
+                        <option disabled selected hidden>테넌트를 선택해 주세요.</option>
                       </select>
                       <input id="tenantId" name="tenantId" type="hidden" value=""/>
                     </div>
@@ -131,6 +135,7 @@
                 </div>
               </div>
             </div>
+            <tab-panel class="tab-pane fade" id="nav-wc" role="tabpanel" aria-labelledby="nav-wc-tab" tabindex="0">탭 패널 입니다.</tab-panel>
           </div>
         </form>
       </div>
@@ -141,27 +146,37 @@
 <script th:src="@{/frontend/vendors/@coreui/coreui/js/coreui.bundle.min.js}"></script>
 <script>
 
-    let tenantList = [{tenantName:"테넌트를 선택해 주세요.", tenantId: ""}];
+    function componentsInit() {
 
-    console.log('#### form submit ####');
+        class TabPanel extends HTMLElement {
+            constructor() {
+                super();
+            }
+
+        }
+
+
+
+        customElements.define("tab-panel", TabPanel, { extends: "div" });
+
+
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
+
+        componentsInit();
+
         const loginForm = document.getElementById('loginForm');
-        const tenantSelect = document.getElementById('tenantSelect');
-
-        tenantSelect.innerHTML = `<option value='${tenantList[0].tenantId}'>${tenantList[0].tenantName}</option>`;
-
         loginForm.addEventListener('submit', function (e) {
             const selectedTab = document.querySelector('#nav-tabContent div.tab-pane.active');
             const selectedTabContent = selectedTab.id;
-            console.log('selectedTabContent', selectedTabContent);
-            console.log('form submit', e);
-            // e.preventDefault();
+            const messageElement = document.querySelector('.login-form-message');
+            messageElement.innerHTML = "";
 
             if (selectedTabContent == 'nav-mailplug') {
                 mailplugLogin(e);
             } else if (selectedTabContent == 'nav-rpa') {
                 rpaLogin(e);
-                // e.preventDefault();
             }
         });
     });
@@ -184,10 +199,10 @@
 
         if (!rpaAdminId || !rpaAdminPassword || !tenantId) {
             e.preventDefault();
-            var message = "";
+            let message = "";
 
             if (rpaAdminId && rpaAdminPassword && !tenantId) {
-                var url = '/public/tenants';
+                let url = '/public/tenants';
                 message = '모든 필드를 입력하세요.';
                 fetch(url, {
                     method: 'POST',
@@ -199,9 +214,8 @@
                         password: rpaAdminPassword
                     })
                 }).then(response => response.json()).then(
-                    data => {
-                    console.log('Success:', data);
-                    tenantList = data;
+                    tenantList => {
+                    console.log('Success:', tenantList);
                     const tenantSelect = document.getElementById('tenantSelect');
                     const options = tenantList.map(tenant => {
                         return `<option value='${tenant.tenantId}'>${tenant.tenantName}</option>`;
@@ -214,6 +228,10 @@
             } else {
                 message = '모든 필드를 입력하세요.';
             }
+
+            const messageElement = document.querySelector('.login-form-message');
+            messageElement.innerHTML = message;
+
         } else {
             const tenantSelect = document.getElementById('tenantSelect');
             document.querySelector('input[name="tenantId"]').value = tenantSelect.value;

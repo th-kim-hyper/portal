@@ -107,6 +107,12 @@ public class BaseController {
 		return applicationConfig.portalProperties().getVersion();
 	}
 
+	@RequestMapping("/ocr")
+	public String ocr(Model model) {
+		log.info("#### /ocr page!!!");
+		return "thymeleaf/ocr";
+	}
+
 	@GetMapping({"/login", "/login/form"})
 	public String loginForm(Model model, HttpServletRequest request) {
 		log.info("#### get /login form!!!");
