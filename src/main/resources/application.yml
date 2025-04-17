@@ -38,6 +38,8 @@ portal:
       - "127.0.0.1"
       - "0:0:0:0:0:0:0:0:1"
       - "::1"
+  ocr-base-url: "http://dev.hyperinfo.co.kr"
+  ocr-api-key: "SNOCR-3de238b328cf4bde9a73e6adc693918b"
 
 server:
   address: 0.0.0.0

@@ -46,6 +46,8 @@ public class ApplicationConfig {
 		private Properties datasource;
 		private List<String> publicPaths;
 		private IpBlock ipBlock;
+		private String ocrBaseUrl;
+		private String ocrApiKey;
 	}
 
 	@Getter
